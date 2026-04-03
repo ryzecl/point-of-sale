@@ -1,6 +1,13 @@
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap');
 
 @import 'tw-animate-css';
+
+@layer base {
+    html {
+        @apply scroll-smooth;
+    }
+}
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -8,8 +15,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+    --font-heading:
+        'Outfit', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Inter', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 
@@ -64,6 +73,10 @@
 :root {
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
+    --pos-navy: #0f172a;
+    --pos-green: #10b981;
+    --pos-pink: #fff2f2;
+    --pos-gray: #f1f5f9;
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
