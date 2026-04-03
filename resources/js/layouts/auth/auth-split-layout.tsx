@@ -21,6 +21,11 @@ export default function AuthSplitLayout({
                     <AppLogoIcon className="mr-2 size-8 fill-current text-white" />
                     {name}
                 </Link>
+                <img
+                    src="/assets/images/login.jpg"
+                    alt="Image"
+                    className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                />
             </div>
             <div className="w-full lg:p-8">
                 <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
@@ -30,8 +35,8 @@ export default function AuthSplitLayout({
                     >
                         <AppLogoIcon className="h-10 fill-current text-black sm:h-12" />
                     </Link>
-                    <div className="flex flex-col items-start gap-2 text-left sm:items-center sm:text-center">
-                        <h1 className="text-xl font-medium">{title}</h1>
+                    <div className="flex flex-col items-start gap-1 text-left sm:items-center sm:text-center">
+                        <h1 className="text-2xl font-bold">{title}</h1>
                         <p className="text-sm text-balance text-muted-foreground">
                             {description}
                         </p>
