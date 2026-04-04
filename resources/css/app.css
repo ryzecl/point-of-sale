@@ -3,12 +3,6 @@
 
 @import 'tw-animate-css';
 
-@layer base {
-    html {
-        @apply scroll-smooth;
-    }
-}
-
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
@@ -148,6 +142,7 @@
 @layer base {
     * {
         @apply border-border;
+        @apply scroll-smooth;
     }
 
     body {
