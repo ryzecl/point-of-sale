@@ -27,4 +27,19 @@ class RoleController extends Controller
         Role::create($request->all());
         return back()->with('success', 'Data saved successfully.');
     }
+
+    public function update(RoleStoreRequest $request, $role_id)
+    {
+        $role = Role::findOrFail($role_id);
+        $role->update($request->all());
+        return back()->with('success', 'Data change update successfull');
+    }
+
+    public function destroy($role_id)
+    {
+        $role = Role::findOrFail($role_id);
+        $role->delete();
+
+        return back()->with('success', 'Role deleted successfully');
+    }
 }

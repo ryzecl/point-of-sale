@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RoleStoreRequest extends FormRequest
 {
@@ -23,7 +24,13 @@ class RoleStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'role_name' => 'required|string|max:255'
+            'role_name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('roles', 'role_name')->ignore($this->route('role_id'))
+            ],
+            'description' => 'nullable|string',
         ];
     }
 }

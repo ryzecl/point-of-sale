@@ -14,6 +14,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('roles')->controller(RoleController::class)->group(function () {
         Route::get('/', 'index');
         Route::post('/', 'store');
+        Route::put('/{role_id}', 'update');
+        Route::delete('/{role_id}', 'destroy');
     });
 });
 
