@@ -1,5 +1,12 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, UserCog } from 'lucide-react';
+import {
+    BookOpen,
+    FolderGit2,
+    LayoutGrid,
+    Tags,
+    UserCog,
+    Users,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -23,9 +30,19 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Role Management',
+        title: 'Role',
         href: '/roles',
         icon: UserCog,
+    },
+    {
+        title: 'Category',
+        href: '/categories',
+        icon: Tags,
+    },
+    {
+        title: 'User',
+        href: '/users',
+        icon: Users,
     },
 ];
 
