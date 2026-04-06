@@ -1,6 +1,11 @@
 import { Head, router } from '@inertiajs/react';
+import { AlertTriangle, Package, PackageX } from 'lucide-react';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
-import type { Item, Category } from '@/types';
+import { cn } from '@/lib/utils';
+
+import type { Category, Item } from '@/types';
 import { columns } from './columns';
 import FormItem from './components/FormItem';
 import ItemFilter from './components/ItemFilter';
@@ -25,11 +30,23 @@ interface IndexProps {
         min_price?: string;
         max_price?: string;
         stock_status?: string;
+        is_active?: string;
+        is_low_stock?: string;
         perPage?: string;
+    };
+    stats: {
+        total: number;
+        inactive: number;
+        low_stock: number;
     };
 }
 
-export default function Index({ items, categories, filters = {} }: IndexProps) {
+export default function Index({
+    items,
+    categories,
+    stats,
+    filters = {},
+}: IndexProps) {
     const itemColumns = columns(categories.data);
 
     const handleSearch = (value: string) => {
@@ -68,10 +85,109 @@ export default function Index({ items, categories, filters = {} }: IndexProps) {
         router.get('/items', {}, { replace: true });
     };
 
+    const toggleInactive = () => {
+        handleFilter({
+            is_active: filters.is_active === '0' ? undefined : '0',
+            is_low_stock: undefined,
+        });
+    };
+
+    const toggleLowStock = () => {
+        handleFilter({
+            is_low_stock: filters.is_low_stock === '1' ? undefined : '1',
+            is_active: undefined,
+        });
+    };
+
+    const clearStatusFilters = () => {
+        handleFilter({ is_active: undefined, is_low_stock: undefined });
+    };
+
+    const isAllActive = !filters.is_active && !filters.is_low_stock;
+    const isInactiveActive = filters.is_active === '0';
+    const isLowStockActive = filters.is_low_stock === '1';
+
     return (
         <>
             <Head title="Menu Management" />
             <div className="container mx-auto">
+                <div className="grid gap-4 p-5 md:grid-cols-3">
+                    <Card
+                        className={cn(
+                            'cursor-pointer overflow-hidden border-2 bg-blue-50/50 shadow-sm transition-all hover:bg-blue-100/50 dark:bg-blue-950/20 dark:hover:bg-blue-900/30',
+                            isAllActive
+                                ? 'border-blue-500/50 ring-2 ring-blue-500/20'
+                                : 'border-transparent',
+                        )}
+                        onClick={clearStatusFilters}
+                    >
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                                Total Menu
+                            </CardTitle>
+                            <Package className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                                {stats.total}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                All filtered items
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card
+                        className={cn(
+                            'cursor-pointer overflow-hidden border-2 bg-red-50/50 shadow-sm transition-all hover:bg-red-100/50 dark:bg-red-950/20 dark:hover:bg-red-900/30',
+                            isInactiveActive
+                                ? 'border-red-500/50 ring-2 ring-red-500/20'
+                                : 'border-transparent',
+                        )}
+                        onClick={toggleInactive}
+                    >
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-red-600 dark:text-red-400">
+                                Inactive Menu
+                            </CardTitle>
+                            <PackageX className="h-4 w-4 text-red-600 dark:text-red-400" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-red-700 dark:text-red-300">
+                                {stats.inactive}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                Hidden from customers
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card
+                        className={cn(
+                            'cursor-pointer overflow-hidden border-2 bg-amber-50/50 shadow-sm transition-all hover:bg-amber-100/50 dark:bg-amber-950/20 dark:hover:bg-amber-900/30',
+                            isLowStockActive
+                                ? 'border-amber-500/50 ring-2 ring-amber-500/20'
+                                : 'border-transparent',
+                        )}
+                        onClick={toggleLowStock}
+                    >
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                                Low Stock
+                            </CardTitle>
+                            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+                                {stats.low_stock}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                Requires attention
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+
                 <DataTable
                     columns={itemColumns}
                     data={items.data}

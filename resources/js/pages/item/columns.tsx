@@ -13,9 +13,9 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { Item, Category } from '@/types';
-import { Badge } from '@/components/ui/badge';
 import FormItem from './components/FormItem';
 
 export const columns = (categories: Category[]): ColumnDef<Item>[] => [
@@ -92,10 +92,34 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
         accessorKey: 'stock',
         header: 'Stock',
-    },
-    {
-        accessorKey: 'min_stock',
-        header: 'Min Stock',
+        cell: ({ row }) => {
+            const stock = row.original.stock;
+            const minStock = row.original.min_stock;
+
+            let badgeVariant:
+                | 'default'
+                | 'destructive'
+                | 'outline'
+                | 'secondary' = 'default';
+            let badgeClassName = '';
+
+            if (stock <= 0) {
+                badgeVariant = 'destructive';
+            } else if (stock <= minStock) {
+                badgeClassName =
+                    'bg-amber-500 text-white hover:bg-amber-600 border-none';
+            } else {
+                badgeVariant = 'default';
+                badgeClassName =
+                    'bg-green-500 text-white hover:bg-green-600 border-none';
+            }
+
+            return (
+                <Badge variant={badgeVariant} className={badgeClassName}>
+                    {stock} / {minStock}
+                </Badge>
+            );
+        },
     },
     {
         accessorKey: 'is_active',

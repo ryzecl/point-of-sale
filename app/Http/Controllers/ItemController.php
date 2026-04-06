@@ -42,13 +42,31 @@ class ItemController extends Controller
             }
         });
 
+        // Filter - Active Status
+        $query->when($request->has('is_active'), function ($q) use ($request) {
+            $q->where('is_active', $request->is_active);
+        });
+
+        // Filter - Low Stock
+        $query->when($request->is_low_stock, function ($q) {
+            $q->whereColumn('stock', '<=', 'min_stock');
+        });
+
+        // Statistics before pagination
+        $stats = [
+            'total' => (clone $query)->count(),
+            'inactive' => (clone $query)->where('is_active', 0)->count(),
+            'low_stock' => (clone $query)->whereColumn('stock', '<=', 'min_stock')->count(),
+        ];
+
         $items = ItemResource::collection($query->paginate($perPage)->withQueryString());
         $categories = CategoryResource::collection(Category::all());
 
         return Inertia::render('item/Index', [
             'items' => $items,
             'categories' => $categories,
-            'filters' => $request->only(['search', 'category_id', 'min_price', 'max_price', 'stock_status', 'perPage'])
+            'stats' => $stats,
+            'filters' => $request->only(['search', 'category_id', 'min_price', 'max_price', 'stock_status', 'is_active', 'is_low_stock', 'perPage'])
         ]);
     }
 
