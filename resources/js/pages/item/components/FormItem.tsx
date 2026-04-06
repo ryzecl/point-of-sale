@@ -16,6 +16,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Field, FieldGroup } from '@/components/ui/field';
+import { FileUpload } from '@/components/ui/file-upload'; // Import FileUpload
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -125,7 +126,9 @@ const FormItem = ({ item, categories }: FormItemProps) => {
 
                     <FieldGroup className="space-y-1">
                         <Field>
-                            <Label htmlFor="name" required>Item Name</Label>
+                            <Label htmlFor="name" required>
+                                Item Name
+                            </Label>
                             <Input
                                 id="name"
                                 value={data.name}
@@ -139,7 +142,9 @@ const FormItem = ({ item, categories }: FormItemProps) => {
                         </Field>
 
                         <Field>
-                            <Label htmlFor="category_id" required>Category</Label>
+                            <Label htmlFor="category_id" required>
+                                Category
+                            </Label>
                             <Select
                                 value={data.category_id}
                                 onValueChange={(value) =>
@@ -165,7 +170,9 @@ const FormItem = ({ item, categories }: FormItemProps) => {
                         </Field>
 
                         <Field>
-                            <Label htmlFor="price" required>Price</Label>
+                            <Label htmlFor="price" required>
+                                Price
+                            </Label>
                             <Input
                                 id="price"
                                 type="number"
@@ -181,7 +188,9 @@ const FormItem = ({ item, categories }: FormItemProps) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <Field>
-                                <Label htmlFor="stock" required>Current Stock</Label>
+                                <Label htmlFor="stock" required>
+                                    Current Stock
+                                </Label>
                                 <Input
                                     id="stock"
                                     type="number"
@@ -258,22 +267,16 @@ const FormItem = ({ item, categories }: FormItemProps) => {
                             </div>
                         </Field>
 
-                        {/* Input Gambar */}
+                        {/* Input Gambar (Filament Style) */}
                         <Field>
-                            <Label htmlFor="img">Product Image</Label>
-                            {/* Tampilkan preview nama file lama jika sedang edit */}
-                            {isEdit && typeof data.img === 'string' && (
-                                <div className="mb-1 text-xs text-muted-foreground">
-                                    Current: {data.img.split('/').pop()}
-                                </div>
-                            )}
-                            <Input
+                            <Label htmlFor="img" required={!isEdit}>
+                                Product Image
+                            </Label>
+                            <FileUpload
                                 id="img"
-                                type="file"
-                                onChange={(e) =>
-                                    setData('img', e.target.files?.[0] || null)
-                                }
-                                accept="image/*"
+                                value={data.img}
+                                onChange={(file) => setData('img', file)}
+                                onRemove={() => setData('img', null)}
                             />
                             <InputError message={errors.img} />
                         </Field>
