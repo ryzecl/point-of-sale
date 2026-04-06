@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, X } from 'lucide-react';
 import {
     Table,
     TableBody,
@@ -96,19 +97,61 @@ export function DataTable<TData, TValue>({
         }
     };
 
+    const handleSearchSubmit = () => {
+        if (onSearch) onSearch(localSearch);
+    };
+
+    const handleReset = () => {
+        if (onSearch) {
+            setLocalSearch('');
+            onSearch('');
+        } else {
+            setGlobalFilter('');
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSearchSubmit();
+        }
+    };
+
     return (
         <div className='p-5'>
-            {/* Search Input */}
-            <div className="flex items-center justify-between py-4">
-                <Input
-                    placeholder={searchPlaceholder ?? 'Search...'}
-                    value={onSearch ? localSearch : globalFilter}
-                    onChange={(event) => handleSearchChange(event.target.value)}
-                    className="max-w-sm"
-                />
+            {/* Search Input & Controls */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4">
+                <div className="flex w-full max-w-sm items-center space-x-2">
+                    <div className="relative flex-1">
+                        <Input
+                            placeholder={searchPlaceholder ?? 'Search...'}
+                            value={onSearch ? localSearch : globalFilter}
+                            onChange={(event) => handleSearchChange(event.target.value)}
+                            onKeyDown={handleKeyDown}
+                            className="pr-10"
+                        />
+                        {(onSearch ? localSearch : globalFilter) && (
+                            <button
+                                onClick={handleReset}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                type="button"
+                            >
+                                <X className="h-4 w-4" />
+                                <span className="sr-only">Reset search</span>
+                            </button>
+                        )}
+                    </div>
+                    <Button 
+                        onClick={handleSearchSubmit} 
+                        className="gap-2 shrink-0"
+                        type="button"
+                    >
+                        <Search className="h-4 w-4" />
+                        Search
+                    </Button>
+                </div>
 
                 {toolbar && (
-                    <div className='flex items-center gap-2'>
+                    <div className='flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0'>
                         {toolbar}
                     </div>
                 )}

@@ -48,7 +48,7 @@ class ItemController extends Controller
         return Inertia::render('item/Index', [
             'items' => $items,
             'categories' => $categories,
-            'filters' => $request->only(['search', 'category_id', 'min_price', 'max_price', 'stock_status'])
+            'filters' => $request->only(['search', 'category_id', 'min_price', 'max_price', 'stock_status', 'perPage'])
         ]);
     }
 
