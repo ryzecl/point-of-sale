@@ -13,17 +13,42 @@ use Inertia\Inertia;
 
 class ItemController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $perPage = request()->query('perPage', 25);
+        $perPage = $request->query('perPage', 25);
         $query = Item::with('category');
 
-        $items = ItemResource::collection($query->paginate($perPage));
+        // Filter - Search
+        $query->when($request->search, function ($q, $search) {
+            $q->where(function ($sub) use ($search) {
+                $sub->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        });
+
+        // Filter - Category
+        $query->when($request->category_id, fn($q, $id) => $q->where('category_id', $id));
+
+        // Filter - Price Range
+        $query->when($request->min_price, fn($q, $price) => $q->where('price', '>=', $price));
+        $query->when($request->max_price, fn($q, $price) => $q->where('price', '<=', $price));
+
+        // Filter - Stock Status
+        $query->when($request->stock_status, function ($q, $status) {
+            if ($status === 'available') {
+                $q->where('stock', '>', 0);
+            } elseif ($status === 'out_of_stock') {
+                $q->where('stock', '<=', 0);
+            }
+        });
+
+        $items = ItemResource::collection($query->paginate($perPage)->withQueryString());
         $categories = CategoryResource::collection(Category::all());
 
         return Inertia::render('item/Index', [
             'items' => $items,
-            'categories' => $categories
+            'categories' => $categories,
+            'filters' => $request->only(['search', 'category_id', 'min_price', 'max_price', 'stock_status'])
         ]);
     }
 

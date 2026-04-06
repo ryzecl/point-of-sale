@@ -1,6 +1,4 @@
-// resources/js/components/data-table/data-table.tsx
-
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -26,9 +24,11 @@ import {
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
-    searchKey?: string; // Kolom mana yang bisa dicari
+    searchKey?: string;
     searchPlaceholder?: string;
     toolbar?: React.ReactNode;
+    onSearch?: (value: string) => void;
+    searchValue?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -37,9 +37,30 @@ export function DataTable<TData, TValue>({
     searchKey,
     searchPlaceholder,
     toolbar,
+    onSearch,
+    searchValue = '',
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [globalFilter, setGlobalFilter] = useState('');
+    const [localSearch, setLocalSearch] = useState(searchValue);
+
+    // Debounce effect for server-side search
+    useEffect(() => {
+        if (!onSearch) return;
+
+        const timer = setTimeout(() => {
+            if (localSearch !== searchValue) {
+                onSearch(localSearch);
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [localSearch, onSearch, searchValue]);
+
+    // Sync local search when searchValue prop changes (e.g. from URL)
+    useEffect(() => {
+        setLocalSearch(searchValue);
+    }, [searchValue]);
 
     const table = useReactTable({
         data,
@@ -50,8 +71,16 @@ export function DataTable<TData, TValue>({
         getFilteredRowModel: getFilteredRowModel(),
         onSortingChange: setSorting,
         onGlobalFilterChange: setGlobalFilter,
-        state: { sorting, globalFilter },
+        state: { sorting, globalFilter: onSearch ? '' : globalFilter },
     });
+
+    const handleSearchChange = (value: string) => {
+        if (onSearch) {
+            setLocalSearch(value);
+        } else {
+            setGlobalFilter(value);
+        }
+    };
 
     return (
         <div className='p-5'>
@@ -59,8 +88,8 @@ export function DataTable<TData, TValue>({
             <div className="flex items-center justify-between py-4">
                 <Input
                     placeholder={searchPlaceholder ?? 'Search...'}
-                    value={globalFilter ?? ''}
-                    onChange={(event) => setGlobalFilter(event.target.value)}
+                    value={onSearch ? localSearch : globalFilter}
+                    onChange={(event) => handleSearchChange(event.target.value)}
                     className="max-w-sm"
                 />
 
