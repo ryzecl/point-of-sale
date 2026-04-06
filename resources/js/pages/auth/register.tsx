@@ -23,7 +23,7 @@ export default function Register() {
                     <>
                         <div className="grid gap-6">
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name" required>Name</Label>
                                 <Input
                                     id="name"
                                     type="text"
@@ -41,7 +41,7 @@ export default function Register() {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email" required>Email address</Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -55,7 +55,7 @@ export default function Register() {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password" required>Password</Label>
                                 <PasswordInput
                                     id="password"
                                     required
@@ -68,7 +68,7 @@ export default function Register() {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="password_confirmation">
+                                <Label htmlFor="password_confirmation" required>
                                     Confirm password
                                 </Label>
                                 <PasswordInput

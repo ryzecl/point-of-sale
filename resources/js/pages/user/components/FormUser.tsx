@@ -101,7 +101,7 @@ const FormUser = ({ user, roles }: FormUserProps) => {
                     </DialogHeader>
                     <FieldGroup className="space-y-4">
                         <Field>
-                            <Label htmlFor="name">Full Name</Label>
+                            <Label htmlFor="name" required>Full Name</Label>
                             <Input
                                 id="name"
                                 value={data.name}
@@ -112,7 +112,7 @@ const FormUser = ({ user, roles }: FormUserProps) => {
                             <InputError message={errors.name} />
                         </Field>
                         <Field>
-                            <Label htmlFor="email">Email Address</Label>
+                            <Label htmlFor="email" required>Email Address</Label>
                             <Input
                                 id="email"
                                 type="email"
@@ -124,7 +124,7 @@ const FormUser = ({ user, roles }: FormUserProps) => {
                             <InputError message={errors.email} />
                         </Field>
                         <Field>
-                            <Label htmlFor="password">
+                            <Label htmlFor="password" required={!isEdit}>
                                 Password {isEdit && <span className="text-muted-foreground font-normal">(Optional)</span>}
                             </Label>
                             <Input
@@ -138,7 +138,7 @@ const FormUser = ({ user, roles }: FormUserProps) => {
                             <InputError message={errors.password} />
                         </Field>
                         <Field>
-                            <Label htmlFor="role_id">Role</Label>
+                            <Label htmlFor="role_id" required>Role</Label>
                             <Select
                                 value={data.role_id}
                                 onValueChange={(value) => setData('role_id', value)}

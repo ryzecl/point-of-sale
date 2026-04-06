@@ -27,3 +27,7 @@ export default function Index({ items, categories }: IndexProps) {
         </>
     );
 }
+
+Index.layout = {
+    breadcrumbs: [{ title: 'Menu Management', href: '/items' }],
+};

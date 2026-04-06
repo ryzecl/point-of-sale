@@ -125,7 +125,7 @@ const FormItem = ({ item, categories }: FormItemProps) => {
 
                     <FieldGroup className="space-y-1">
                         <Field>
-                            <Label htmlFor="name">Item Name</Label>
+                            <Label htmlFor="name" required>Item Name</Label>
                             <Input
                                 id="name"
                                 value={data.name}
@@ -139,7 +139,7 @@ const FormItem = ({ item, categories }: FormItemProps) => {
                         </Field>
 
                         <Field>
-                            <Label htmlFor="category_id">Category</Label>
+                            <Label htmlFor="category_id" required>Category</Label>
                             <Select
                                 value={data.category_id}
                                 onValueChange={(value) =>
@@ -165,7 +165,7 @@ const FormItem = ({ item, categories }: FormItemProps) => {
                         </Field>
 
                         <Field>
-                            <Label htmlFor="price">Price</Label>
+                            <Label htmlFor="price" required>Price</Label>
                             <Input
                                 id="price"
                                 type="number"
@@ -181,7 +181,7 @@ const FormItem = ({ item, categories }: FormItemProps) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <Field>
-                                <Label htmlFor="stock">Current Stock</Label>
+                                <Label htmlFor="stock" required>Current Stock</Label>
                                 <Input
                                     id="stock"
                                     type="number"
@@ -196,7 +196,7 @@ const FormItem = ({ item, categories }: FormItemProps) => {
                             </Field>
 
                             <Field>
-                                <Label htmlFor="min_stock">
+                                <Label htmlFor="min_stock" required>
                                     Min. Stock Alert
                                 </Label>
                                 <Input

@@ -93,7 +93,9 @@ const FormRole = ({ role }: FormRoleProps) => {
                     </DialogHeader>
                     <FieldGroup>
                         <Field>
-                            <Label htmlFor="name-1">Role Name</Label>
+                            <Label htmlFor="name-1" required>
+                                Role Name
+                            </Label>
                             <Input
                                 id="role_name"
                                 value={data.role_name}
@@ -101,6 +103,7 @@ const FormRole = ({ role }: FormRoleProps) => {
                                     setData('role_name', e.target.value)
                                 }
                                 placeholder="Admin, Kasir, dll"
+                                required
                             />
                             <InputError message={errors.role_name} />
                         </Field>

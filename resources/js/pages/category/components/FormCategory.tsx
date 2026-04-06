@@ -93,7 +93,9 @@ const FormCategory = ({ category }: FormCategoryProps) => {
                     </DialogHeader>
                     <FieldGroup>
                         <Field>
-                            <Label htmlFor="name-1">Category Name</Label>
+                            <Label htmlFor="name-1" required>
+                                Category Name
+                            </Label>
                             <Input
                                 id="cat_name"
                                 value={data.cat_name}
@@ -101,6 +103,7 @@ const FormCategory = ({ category }: FormCategoryProps) => {
                                     setData('cat_name', e.target.value)
                                 }
                                 placeholder="Snack, Drink, Dessert"
+                                required
                             />
                             <InputError message={errors.cat_name} />
                         </Field>

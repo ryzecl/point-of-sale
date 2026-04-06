@@ -93,6 +93,10 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
         header: 'Stock',
     },
     {
+        accessorKey: 'min_stock',
+        header: 'Min Stock',
+    },
+    {
         id: 'actions',
         header: 'Actions',
         meta: {
