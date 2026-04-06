@@ -16,12 +16,18 @@ export interface Category {
     deleted_at: string;
 }
 
-export interface User {
+export interface Item {
     id: number;
     name: string;
-    email: string;
-    role_id: number;
-    role?: Role;
+    description: string;
+    price: number;
+    stock: number;
+    min_stock: number;
+    category_id: number;
+    category?: Category;
+    img?: string;
+    is_active: boolean;
     created_at: string;
     updated_at: string;
+    deleted_at: string;
 }

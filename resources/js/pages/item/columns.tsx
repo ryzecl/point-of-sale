@@ -1,0 +1,160 @@
+// user/columns.tsx
+import { router } from '@inertiajs/react';
+import type { ColumnDef } from '@tanstack/react-table';
+import { Trash2, Eye } from 'lucide-react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import type { Item, Category } from '@/types';
+import FormItem from './components/FormItem';
+
+export const columns = (categories: Category[]): ColumnDef<Item>[] => [
+    {
+        id: 'No',
+        header: 'No',
+        cell: ({ row }) => row.index + 1,
+        meta: {
+            className: 'w-10 text-center',
+        },
+    },
+    {
+        accessorKey: 'img',
+        header: 'Image',
+        cell: ({ row }) => {
+            const item = row.original;
+            // Generate URL inisial sebagai cadangan jika gambar utama kosong atau error
+            const initialUrl = `https://ui-avatars.com/api/?name=${urlencode(item.name)}&background=random&color=fff`;
+
+            return (
+                <div className="flex items-center justify-center">
+                    <div className="h-10 w-10 overflow-hidden rounded-md border bg-muted">
+                        <img
+                            src={item.img || initialUrl}
+                            alt={item.name}
+                            className="h-full w-full object-cover"
+                            // Jika gambar di storage tidak ditemukan/error, ganti ke inisial
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = initialUrl;
+                            }}
+                        />
+                    </div>
+                </div>
+            );
+        },
+    },
+    {
+        accessorKey: 'name',
+        header: 'Name',
+        meta: {
+            className: 'capitalize',
+        },
+    },
+    {
+        accessorKey: 'description',
+        header: 'Description',
+        cell: ({ row }) => {
+            const description = row.getValue('description') as string;
+
+            return (
+                <div
+                    className="max-w-[150px] truncate md:max-w-[200px] lg:max-w-[300px]"
+                    title={description}
+                >
+                    {description || '-'}
+                </div>
+            );
+        },
+    },
+    {
+        accessorKey: 'price',
+        header: 'Price',
+        meta: {
+            className: 'capitalize',
+        },
+    },
+    {
+        accessorKey: 'category.cat_name',
+        header: 'Category',
+        meta: {
+            className: 'capitalize',
+        },
+    },
+    {
+        accessorKey: 'stock',
+        header: 'Stock',
+    },
+    {
+        id: 'actions',
+        header: 'Actions',
+        meta: {
+            className: 'w-32 text-center',
+        },
+        cell: ({ row }) => {
+            const item = row.original;
+
+            return (
+                <div className="flex items-center justify-center gap-1">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground transition-colors hover:text-primary"
+                        onClick={() => router.get(`/items/${item.id}`)}
+                    >
+                        <Eye className="h-4 w-4" />
+                    </Button>
+                    <FormItem item={item} categories={categories} />
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="sm:max-w-sm">
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                    Are you sure?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Do you really want to delete item{' '}
+                                    <b>{item.name}</b>? This action cannot be
+                                    undone.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                    onClick={() =>
+                                        router.delete(`/items/${item.id}`)
+                                    }
+                                    className="bg-destructive text-white hover:bg-destructive/90"
+                                >
+                                    Delete
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </div>
+            );
+        },
+    },
+];
+
+function urlencode(str: string) {
+    return encodeURIComponent(str).replace(
+        /[!'()*]/g,
+        (c) => '%' + c.charCodeAt(0).toString(16),
+    );
+}

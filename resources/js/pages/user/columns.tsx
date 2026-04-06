@@ -1,7 +1,7 @@
 // user/columns.tsx
 import { router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Eye } from 'lucide-react';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -55,6 +55,14 @@ export const columns = (roles: Role[]): ColumnDef<User>[] => [
 
             return (
                 <div className="flex items-center justify-center gap-1">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-primary transition-colors"
+                        onClick={() => router.get(`/users/${user.id}`)}
+                    >
+                        <Eye className="h-4 w-4" />
+                    </Button>
                     <FormUser user={user} roles={roles} />
                     <AlertDialog>
                         <AlertDialogTrigger asChild>

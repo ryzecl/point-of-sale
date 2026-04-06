@@ -36,6 +36,13 @@ class UserController extends Controller
         return back()->with('success', 'User created successfully.');
     }
 
+    public function show(User $user)
+    {
+        return Inertia::render('user/Show', [
+            'user' => new UserResource($user->load('role'))
+        ]);
+    }
+
     public function update(UserStoreRequest $request, User $user)
     {
         $data = $request->validated();

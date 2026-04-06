@@ -16,7 +16,7 @@ export default function Index({ users, roles }: IndexProps) {
     return (
         <>
             <Head title="User Management" />
-            <div className="container mx-auto pt-6">
+            <div className="container mx-auto">
                 <DataTable
                     columns={userColumns}
                     data={users.data}

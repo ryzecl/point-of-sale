@@ -3,6 +3,7 @@ import {
     BookOpen,
     FolderGit2,
     LayoutGrid,
+    LayoutList,
     Tags,
     UserCog,
     Users,
@@ -43,6 +44,11 @@ const mainNavItems: NavItem[] = [
         title: 'User',
         href: '/users',
         icon: Users,
+    },
+    {
+        title: 'Menu',
+        href: '/items',
+        icon: LayoutList,
     },
 ];
 
