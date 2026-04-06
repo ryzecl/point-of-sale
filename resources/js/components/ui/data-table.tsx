@@ -12,6 +12,7 @@ import {
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -29,6 +30,17 @@ interface DataTableProps<TData, TValue> {
     toolbar?: React.ReactNode;
     onSearch?: (value: string) => void;
     searchValue?: string;
+    // Server-side pagination
+    meta?: {
+        current_page: number;
+        last_page: number;
+        from: number;
+        to: number;
+        total: number;
+        per_page: number;
+    };
+    onPageChange?: (page: number) => void;
+    onPerPageChange?: (perPage: number) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -39,6 +51,9 @@ export function DataTable<TData, TValue>({
     toolbar,
     onSearch,
     searchValue = '',
+    meta,
+    onPageChange,
+    onPerPageChange,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [globalFilter, setGlobalFilter] = useState('');
@@ -66,7 +81,6 @@ export function DataTable<TData, TValue>({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         onSortingChange: setSorting,
@@ -164,24 +178,83 @@ export function DataTable<TData, TValue>({
                 </Table>
             </div>
 
-            {/* Pagination */}
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    Previous
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    Next
-                </Button>
+            {/* Pagination & Metadata */}
+            <div className="flex items-center justify-between py-4">
+                <div className="flex-1 text-sm text-muted-foreground font-medium">
+                    {meta ? (
+                        <>
+                            Showing <span className="text-foreground">{meta.from}</span> to <span className="text-foreground">{meta.to}</span> of <span className="text-foreground">{meta.total}</span> entries
+                        </>
+                    ) : (
+                        `Total ${data.length} entries`
+                    )}
+                </div>
+
+                <div className="flex items-center space-x-6 lg:space-x-8">
+                    {/* Rows per page */}
+                    {onPerPageChange && meta && (
+                        <div className="flex items-center space-x-2">
+                            <p className="text-sm font-medium">Rows per page</p>
+                            <Select
+                                value={meta.per_page.toString()}
+                                onValueChange={(value) => onPerPageChange(Number(value))}
+                            >
+                                <SelectTrigger className="h-8 w-[70px]">
+                                    <SelectValue placeholder={meta.per_page.toString()} />
+                                </SelectTrigger>
+                                <SelectContent side="top">
+                                    {[10, 25, 50, 100].map((pageSize) => (
+                                        <SelectItem key={pageSize} value={pageSize.toString()}>
+                                            {pageSize}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
+                    {/* Page Info & Nav */}
+                    <div className="flex items-center space-x-2">
+                        {meta ? (
+                            <div className="flex items-center justify-center text-sm font-medium">
+                                Page {meta.current_page} of {meta.last_page}
+                            </div>
+                        ) : null}
+
+                        <div className="flex items-center space-x-2">
+                            <Button
+                                variant="outline"
+                                className="h-8 w-12 p-0"
+                                onClick={() => {
+                                    if (meta && onPageChange) {
+                                        onPageChange(meta.current_page - 1);
+                                    } else {
+                                        table.previousPage();
+                                    }
+                                }}
+                                disabled={meta ? meta.current_page === 1 : !table.getCanPreviousPage()}
+                            >
+                                <span className="sr-only">Go to previous page</span>
+                                Previous
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="h-8 w-12 p-0"
+                                onClick={() => {
+                                    if (meta && onPageChange) {
+                                        onPageChange(meta.current_page + 1);
+                                    } else {
+                                        table.nextPage();
+                                    }
+                                }}
+                                disabled={meta ? meta.current_page === meta.last_page : !table.getCanNextPage()}
+                            >
+                                <span className="sr-only">Go to next page</span>
+                                Next
+                            </Button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

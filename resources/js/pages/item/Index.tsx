@@ -1,5 +1,4 @@
-import { Head, router, usePage } from '@inertiajs/react';
-import React from 'react';
+import { Head, router } from '@inertiajs/react';
 import { DataTable } from '@/components/ui/data-table';
 import type { Item, Category } from '@/types';
 import { columns } from './columns';
@@ -7,7 +6,18 @@ import FormItem from './components/FormItem';
 import ItemFilter from './components/ItemFilter';
 
 interface IndexProps {
-    items: { data: Item[] };
+    items: {
+        data: Item[];
+        links: any;
+        meta: {
+            current_page: number;
+            last_page: number;
+            from: number;
+            to: number;
+            total: number;
+            per_page: number;
+        };
+    };
     categories: { data: Category[] };
     filters?: {
         search?: string;
@@ -15,6 +25,7 @@ interface IndexProps {
         min_price?: string;
         max_price?: string;
         stock_status?: string;
+        perPage?: string;
     };
 }
 
@@ -24,16 +35,32 @@ export default function Index({ items, categories, filters = {} }: IndexProps) {
     const handleSearch = (value: string) => {
         router.get(
             '/items',
-            { ...filters, search: value },
-            { preserveState: true, replace: true }
+            { ...filters, search: value, page: 1 },
+            { preserveState: true, replace: true },
         );
     };
 
     const handleFilter = (newFilters: any) => {
         router.get(
             '/items',
-            { ...filters, ...newFilters },
-            { preserveState: true, replace: true }
+            { ...filters, ...newFilters, page: 1 },
+            { preserveState: true, replace: true },
+        );
+    };
+
+    const handlePageChange = (page: number) => {
+        router.get(
+            '/items',
+            { ...filters, page },
+            { preserveState: true, replace: true },
+        );
+    };
+
+    const handlePerPageChange = (perPage: number) => {
+        router.get(
+            '/items',
+            { ...filters, perPage, page: 1 },
+            { preserveState: true, replace: true },
         );
     };
 
@@ -51,6 +78,9 @@ export default function Index({ items, categories, filters = {} }: IndexProps) {
                     searchPlaceholder="Search menu..."
                     searchValue={filters.search}
                     onSearch={handleSearch}
+                    meta={items.meta}
+                    onPageChange={handlePageChange}
+                    onPerPageChange={handlePerPageChange}
                     toolbar={
                         <>
                             <ItemFilter
