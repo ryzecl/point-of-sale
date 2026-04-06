@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import {
     ArrowLeft,
     Package,
@@ -10,8 +10,20 @@ import {
     AlertTriangle,
     CheckCircle2,
     XCircle,
+    Trash2,
 } from 'lucide-react';
 import React from 'react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,14 +33,17 @@ import {
     CardTitle,
     CardDescription,
 } from '@/components/ui/card';
-import type { Item } from '@/types';
+import type { Item, Category } from '@/types';
+import FormItem from './components/FormItem';
 
 interface ShowProps {
     item: { data: Item };
+    categories: { data: Category[] };
 }
 
-export default function Show({ item }: ShowProps) {
+export default function Show({ item, categories }: ShowProps) {
     const itemData = item.data;
+    const categoriesData = categories.data;
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('id-ID', {
@@ -83,7 +98,7 @@ export default function Show({ item }: ShowProps) {
                             </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                         {itemData.is_active ? (
                             <Badge className="flex items-center gap-1.5 border-green-200 bg-green-100 px-3 py-1 text-green-700 shadow-sm hover:bg-green-100">
                                 <CheckCircle2 className="h-3.5 w-3.5" /> Active
@@ -96,6 +111,58 @@ export default function Show({ item }: ShowProps) {
                                 <XCircle className="h-3.5 w-3.5" /> Inactive
                             </Badge>
                         )}
+
+                        <div className="flex items-center gap-2 border-l pl-3">
+                            <FormItem
+                                item={itemData}
+                                categories={categoriesData}
+                            />
+
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-9 w-9 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="sm:max-w-sm">
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>
+                                            Delete Item?
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Are you sure you want to delete{' '}
+                                            <b>{itemData.name}</b>? This action
+                                            cannot be undone.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>
+                                            Cancel
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction
+                                            onClick={() =>
+                                                router.delete(
+                                                    `/items/${itemData.id}`,
+                                                    {
+                                                        onSuccess: () =>
+                                                            router.visit(
+                                                                '/items',
+                                                            ),
+                                                    },
+                                                )
+                                            }
+                                            className="bg-destructive text-white hover:bg-destructive/90"
+                                        >
+                                            Delete
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
                     </div>
                 </div>
 

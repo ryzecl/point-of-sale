@@ -78,7 +78,11 @@ const FormUser = ({ user, roles }: FormUserProps) => {
                     onClick={() => setOpen(true)}
                     variant={isEdit ? 'ghost' : 'default'}
                     size={isEdit ? 'icon' : 'default'}
-                    className={isEdit ? 'h-8 w-8 hover:text-primary transition-colors' : ''}
+                    className={
+                        isEdit
+                            ? 'h-8 w-8 transition-colors hover:text-primary'
+                            : ''
+                    }
                 >
                     {isEdit ? (
                         <EditIcon className="h-4 w-4" />
@@ -92,32 +96,42 @@ const FormUser = ({ user, roles }: FormUserProps) => {
             <DialogContent className="sm:max-w-md">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <DialogHeader>
-                        <DialogTitle>{isEdit ? 'Edit User' : 'Add New User'}</DialogTitle>
+                        <DialogTitle>
+                            {isEdit ? 'Edit User' : 'Add New User'}
+                        </DialogTitle>
                         <DialogDescription>
                             {isEdit
                                 ? 'Update user information below. Leave password empty to keep current password.'
                                 : 'Create a new user account by filling in the details below.'}
                         </DialogDescription>
                     </DialogHeader>
-                    <FieldGroup className="space-y-4">
+                    <FieldGroup>
                         <Field>
-                            <Label htmlFor="name" required>Full Name</Label>
+                            <Label htmlFor="name" required>
+                                Full Name
+                            </Label>
                             <Input
                                 id="name"
                                 value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
+                                onChange={(e) =>
+                                    setData('name', e.target.value)
+                                }
                                 placeholder="John Doe"
                                 required
                             />
                             <InputError message={errors.name} />
                         </Field>
                         <Field>
-                            <Label htmlFor="email" required>Email Address</Label>
+                            <Label htmlFor="email" required>
+                                Email Address
+                            </Label>
                             <Input
                                 id="email"
                                 type="email"
                                 value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
+                                onChange={(e) =>
+                                    setData('email', e.target.value)
+                                }
                                 placeholder="john@example.com"
                                 required
                             />
@@ -125,23 +139,34 @@ const FormUser = ({ user, roles }: FormUserProps) => {
                         </Field>
                         <Field>
                             <Label htmlFor="password" required={!isEdit}>
-                                Password {isEdit && <span className="text-muted-foreground font-normal">(Optional)</span>}
+                                Password{' '}
+                                {isEdit && (
+                                    <span className="font-normal text-muted-foreground">
+                                        (Optional)
+                                    </span>
+                                )}
                             </Label>
                             <Input
                                 id="password"
                                 type="password"
                                 value={data.password}
-                                onChange={(e) => setData('password', e.target.value)}
+                                onChange={(e) =>
+                                    setData('password', e.target.value)
+                                }
                                 placeholder="••••••••"
                                 required={!isEdit}
                             />
                             <InputError message={errors.password} />
                         </Field>
                         <Field>
-                            <Label htmlFor="role_id" required>Role</Label>
+                            <Label htmlFor="role_id" required>
+                                Role
+                            </Label>
                             <Select
                                 value={data.role_id}
-                                onValueChange={(value) => setData('role_id', value)}
+                                onValueChange={(value) =>
+                                    setData('role_id', value)
+                                }
                                 required
                             >
                                 <SelectTrigger>
@@ -149,7 +174,10 @@ const FormUser = ({ user, roles }: FormUserProps) => {
                                 </SelectTrigger>
                                 <SelectContent>
                                     {roles.map((role) => (
-                                        <SelectItem key={role.id} value={role.id.toString()}>
+                                        <SelectItem
+                                            key={role.id}
+                                            value={role.id.toString()}
+                                        >
                                             {role.role_name}
                                         </SelectItem>
                                     ))}
@@ -160,7 +188,9 @@ const FormUser = ({ user, roles }: FormUserProps) => {
                     </FieldGroup>
                     <DialogFooter className="gap-2 sm:gap-0">
                         <DialogClose asChild>
-                            <Button variant="outline" type="button">Cancel</Button>
+                            <Button variant="outline" type="button">
+                                Cancel
+                            </Button>
                         </DialogClose>
                         <Button disabled={processing} type="submit">
                             {processing ? 'Saving...' : 'Save Changes'}

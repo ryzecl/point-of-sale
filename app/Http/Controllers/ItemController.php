@@ -84,6 +84,7 @@ class ItemController extends Controller
     {
         return Inertia::render('item/Show', [
             'item' => new ItemResource($item->load('category')),
+            'categories' => CategoryResource::collection(Category::all()),
         ]);
     }
 

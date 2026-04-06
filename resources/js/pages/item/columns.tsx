@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import type { Item, Category } from '@/types';
+import { Badge } from '@/components/ui/badge';
 import FormItem from './components/FormItem';
 
 export const columns = (categories: Category[]): ColumnDef<Item>[] => [
@@ -95,6 +96,26 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
         accessorKey: 'min_stock',
         header: 'Min Stock',
+    },
+    {
+        accessorKey: 'is_active',
+        header: 'Status',
+        cell: ({ row }) => {
+            const isActive = row.original.is_active;
+
+            return (
+                <Badge
+                    variant={isActive ? 'default' : 'destructive'}
+                    className={
+                        isActive
+                            ? 'bg-green-500 text-white hover:bg-green-600'
+                            : ''
+                    }
+                >
+                    {isActive ? 'Active' : 'Inactive'}
+                </Badge>
+            );
+        },
     },
     {
         id: 'actions',
