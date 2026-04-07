@@ -4,6 +4,7 @@ import {
     FolderGit2,
     LayoutGrid,
     LayoutList,
+    ShoppingCart,
     Tags,
     UserCog,
     Users,
@@ -29,6 +30,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Cashier',
+        href: '/cashier',
+        icon: ShoppingCart,
     },
     {
         title: 'Role',

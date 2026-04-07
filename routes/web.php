@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\OfflineOrderController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +43,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{item}', 'show')->name('items.show');
         Route::put('/{item}', 'update')->name('items.update');
         Route::delete('/{item}', 'destroy')->name('items.destroy');
+    });
+
+    Route::prefix('cashier')->controller(OfflineOrderController::class)->group(function () {
+        Route::get('/', 'index')->name('cashier.index');
     });
 });
 
