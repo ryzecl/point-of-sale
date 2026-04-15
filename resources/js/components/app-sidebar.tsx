@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import {
     BookOpen,
+    Calculator,
     FolderGit2,
     LayoutGrid,
     LayoutList,
@@ -34,6 +35,11 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Cashier',
         href: '/cashier',
+        icon: Calculator,
+    },
+    {
+        title: 'Order',
+        href: '/orders',
         icon: ShoppingCart,
     },
     {

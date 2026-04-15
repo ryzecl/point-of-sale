@@ -31,3 +31,22 @@ export interface Item {
     updated_at: string;
     deleted_at: string;
 }
+
+export interface Order {
+    id: number;
+    order_code: string;
+    user_id: number;
+    discount: number;
+    subtotal: number;
+    tax: number;
+    grand_total: number;
+    status: string;
+    table_number: number;
+    payment_method: string;
+    payment_amount: number;
+    change_amount: number;
+    note: string;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string;
+}

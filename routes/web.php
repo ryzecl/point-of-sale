@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\OfflineOrderController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('cashier')->controller(OfflineOrderController::class)->group(function () {
         Route::get('/', 'index')->name('cashier.index');
+    });
+
+    Route::prefix('orders')->controller(OrderController::class)->group(function () {
+        Route::get('/', 'index')->name('orders.index');
     });
 });
 
