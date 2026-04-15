@@ -1,0 +1,65 @@
+4	OPEN	Fix Filter State Sync in ItemFilter Component		2026-04-07T17:03:38Z
+3	OPEN	Add Loading State Feedback to DataTable		2026-04-07T17:03:36Z
+2	OPEN	Create Reusable useFilter Hook for Index Pages		2026-04-07T17:03:33Z
+1	OPEN	Implement Search Debouncing for Performance		2026-04-07T17:03:30Z
+title:	Implement Search Debouncing for Performance
+state:	OPEN
+author:	ryzecl (Ferry Noer Hendriawan)
+labels:	
+comments:	0
+assignees:	
+projects:	
+milestone:	
+number:	1
+--
+Currently, every keystroke in the search bar triggers a server request. We need to implement a useDebounce hook to limit this. 
+
+Tasks:
+- Create resources/js/hooks/use-debounce.ts.
+- Update Index.tsx to use the debounced value for handleSearch.
+- Add local state for the search input to ensure the UI remains responsive.
+title:	Create Reusable useFilter Hook for Index Pages
+state:	OPEN
+author:	ryzecl (Ferry Noer Hendriawan)
+labels:	
+comments:	0
+assignees:	
+projects:	
+milestone:	
+number:	2
+--
+The filtering, pagination, and per-page logic currently in Index.tsx should be abstracted for reusability. 
+
+Tasks:
+- Implement resources/js/hooks/use-filter.ts.
+- Wrap router.get with common handlers for search, pagination, and filters.
+- Replace local logic in Index.tsx with this hook.
+title:	Add Loading State Feedback to DataTable
+state:	OPEN
+author:	ryzecl (Ferry Noer Hendriawan)
+labels:	
+comments:	0
+assignees:	
+projects:	
+milestone:	
+number:	3
+--
+Increase UX by showing when a filter or search request is in flight. 
+
+Tasks:
+- Access processing from Inertia (router or usePage).
+- Apply a loading UI to the DataTable (e.g., opacity-50) during server navigation.
+title:	Fix Filter State Sync in ItemFilter Component
+state:	OPEN
+author:	ryzecl (Ferry Noer Hendriawan)
+labels:	
+comments:	0
+assignees:	
+projects:	
+milestone:	
+number:	4
+--
+Ensure the filter Sheet UI stays in sync with changes made to external URL parameters (like card filters). 
+
+Tasks:
+- Use useEffect in ItemFilter.tsx to keep local filter state in sync with props.

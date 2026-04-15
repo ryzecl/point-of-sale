@@ -3,6 +3,7 @@ import { AlertTriangle, Package, PackageX } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
+import { useFilter } from '@/hooks/use-filter';
 import { cn } from '@/lib/utils';
 
 import type { Category, Item } from '@/types';
@@ -49,21 +50,11 @@ export default function Index({
 }: IndexProps) {
     const itemColumns = columns(categories.data);
 
-    const handleSearch = (value: string) => {
-        router.get(
-            '/items',
-            { ...filters, search: value, page: 1 },
-            { preserveState: true, replace: true },
-        );
-    };
-
-    const handleFilter = (newFilters: any) => {
-        router.get(
-            '/items',
-            { ...filters, ...newFilters, page: 1 },
-            { preserveState: true, replace: true },
-        );
-    };
+    // Gunakan custom hook
+    const { search, setSearch, handleReset, applyFilters } = useFilter({
+        routeName: '/items',
+        initialFilters: filters,
+    });
 
     const handlePageChange = (page: number) => {
         router.get(
@@ -81,26 +72,22 @@ export default function Index({
         );
     };
 
-    const handleReset = () => {
-        router.get('/items', {}, { replace: true });
-    };
-
     const toggleInactive = () => {
-        handleFilter({
+        applyFilters({
             is_active: filters.is_active === '0' ? undefined : '0',
             is_low_stock: undefined,
         });
     };
 
     const toggleLowStock = () => {
-        handleFilter({
+        applyFilters({
             is_low_stock: filters.is_low_stock === '1' ? undefined : '1',
             is_active: undefined,
         });
     };
 
     const clearStatusFilters = () => {
-        handleFilter({ is_active: undefined, is_low_stock: undefined });
+        applyFilters({ is_active: undefined, is_low_stock: undefined });
     };
 
     const isAllActive = !filters.is_active && !filters.is_low_stock;
@@ -192,8 +179,8 @@ export default function Index({
                     columns={itemColumns}
                     data={items.data}
                     searchPlaceholder="Search menu..."
-                    searchValue={filters.search}
-                    onSearch={handleSearch}
+                    searchValue={search}
+                    onSearch={setSearch}
                     meta={items.meta}
                     onPageChange={handlePageChange}
                     onPerPageChange={handlePerPageChange}
@@ -202,7 +189,7 @@ export default function Index({
                             <ItemFilter
                                 categories={categories.data}
                                 initialFilters={filters}
-                                onFilter={handleFilter}
+                                onFilter={applyFilters}
                                 onReset={handleReset}
                             />
                             <FormItem categories={categories.data} />

@@ -10,47 +10,23 @@ use App\Models\Item;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Services\ItemService;
 
 class ItemController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, ItemService $itemService)
     {
         $perPage = $request->query('perPage', 25);
         $query = Item::with('category');
 
-        // Filter - Search
-        $query->when($request->search, function ($q, $search) {
-            $q->where(function ($sub) use ($search) {
-                $sub->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
-        });
-
-        // Filter - Category
-        $query->when($request->category_id, fn($q, $id) => $q->where('category_id', $id));
-
-        // Filter - Price Range
-        $query->when($request->min_price, fn($q, $price) => $q->where('price', '>=', $price));
-        $query->when($request->max_price, fn($q, $price) => $q->where('price', '<=', $price));
-
-        // Filter - Stock Status
-        $query->when($request->stock_status, function ($q, $status) {
-            if ($status === 'available') {
-                $q->where('stock', '>', 0);
-            } elseif ($status === 'out_of_stock') {
-                $q->where('stock', '<=', 0);
-            }
-        });
-
-        // Filter - Active Status
-        $query->when($request->has('is_active'), function ($q) use ($request) {
-            $q->where('is_active', $request->is_active);
-        });
-
-        // Filter - Low Stock
-        $query->when($request->is_low_stock, function ($q) {
-            $q->whereColumn('stock', '<=', 'min_stock');
-        });
+        // Gunakan service
+        $query = $itemService->applyFilters($query, $request->all());
+        // Statistik juga menggunakan query yang sama (clone agar tidak merusak query utama)
+        $stats = [
+            'total' => (clone $query)->count(),
+            'inactive' => (clone $query)->where('is_active', 0)->count(),
+            'low_stock' => (clone $query)->whereColumn('stock', '<=', 'min_stock')->count(),
+        ];
 
         // Statistics before pagination
         $stats = [
@@ -59,7 +35,7 @@ class ItemController extends Controller
             'low_stock' => (clone $query)->whereColumn('stock', '<=', 'min_stock')->count(),
         ];
 
-        $items = ItemResource::collection($query->paginate($perPage)->withQueryString());
+        $items = ItemResource::collection($query->paginate($request->perPage ?? $perPage)->withQueryString());
         $categories = CategoryResource::collection(Category::all());
 
         return Inertia::render('item/Index', [
