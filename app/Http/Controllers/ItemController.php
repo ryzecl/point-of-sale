@@ -55,6 +55,7 @@ class ItemController extends Controller
         Item::create($data);
         return back()->with('success', 'Item created!');
     }
+
     public function update(ItemStoreRequest $request, Item $item)
     {
         $data = $request->validated();

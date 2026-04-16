@@ -48,6 +48,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('cashier')->controller(OfflineOrderController::class)->group(function () {
         Route::get('/', 'index')->name('cashier.index');
+        Route::post('/', 'store')->name('cashier.store');
     });
 
     Route::prefix('orders')->controller(OrderController::class)->group(function () {

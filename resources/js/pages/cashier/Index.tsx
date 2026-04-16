@@ -1,13 +1,5 @@
 import { Head, router } from '@inertiajs/react';
-import {
-    ShoppingCart,
-    CreditCard,
-    Search,
-    X,
-    Minus,
-    Plus,
-    RotateCcw,
-} from 'lucide-react';
+import { ShoppingCart, Search, X, Minus, Plus, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,7 +13,8 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useFilter } from '@/hooks/use-filter';
-import type { Category, Item } from '@/types';
+import type { Category, Item, CheckoutData } from '@/types';
+import CheckoutDialog from './components/CheckoutDialog';
 import PosFilter from './components/PosFilter';
 
 const categoryColors = [
@@ -69,6 +62,9 @@ export default function Index({ items, categories, filters = {} }: IndexProps) {
     });
 
     const [cart, setCart] = useState<CartItem[]>([]);
+
+    // State untuk mengendalikan Buka-tutup Dialog Checkout
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
     const products = items?.data ?? [];
 
@@ -120,20 +116,47 @@ export default function Index({ items, categories, filters = {} }: IndexProps) {
             }
         });
     };
-    // FUNGSI MENGHAPUS SEMUA ISI KERANJANG
+
     const handleResetCart = () => {
-        // Simple! Kembalikan State Cart ke array kosong
         setCart([]);
     };
 
     // 4. Kalkulasi Subtotal, Pajak 10%, dan Total Akhir
-    // reduce() itu untuk menjumlahkan isi keranjang. (Rumus: Harga x Qty)
     const subtotal = cart.reduce(
         (sum, item) => sum + item.price * item.quantity,
         0,
     );
+
     const tax = subtotal * 0.1; // Pajak 10%
-    const totalPembayaran = subtotal + tax;
+    const grandTotal = subtotal + tax;
+
+    // Fungsi Menyelesaikan Pesanan dari anak komponen (CheckoutDialog.tsx)
+    const handleSelesaikanPesanan = (data: CheckoutData) => {
+        // Memanggil router.post Inertia untuk mengirim data ke Backend
+        router.post(
+            '/cashier',
+            {
+                ...data,
+                // Map isi keranjang agar hanya mengirim ID dan jumlahnya saja
+                cart: cart.map((item) => ({
+                    id: item.id,
+                    quantity: item.quantity,
+                })),
+            },
+            {
+                onSuccess: () => {
+                    // Jika Berhasil: Tutup dialog dan kosongkan keranjang
+                    setIsCheckoutOpen(false);
+                    setCart([]);
+                },
+                onError: (errors) => {
+                    // Handle Error (Opsional: Bisa tampilkan toast)
+                    console.error('Gagal memproses pesanan:', errors);
+                },
+                preserveScroll: true,
+            },
+        );
+    };
 
     return (
         <div className="flex min-h-[calc(100vh-64px)] flex-col bg-muted/20 p-4 lg:h-[calc(100vh-64px)] lg:flex-row lg:gap-8 lg:overflow-hidden lg:p-8">
@@ -498,7 +521,7 @@ export default function Index({ items, categories, filters = {} }: IndexProps) {
                                 </div>
                                 <div className="flex justify-between text-sm font-medium">
                                     <span className="flex items-center gap-2 text-muted-foreground">
-                                        Pajak (10%){' '}
+                                        Tax (10%){' '}
                                         <Badge
                                             variant="secondary"
                                             className="h-4 px-1 text-[10px]"
@@ -513,25 +536,23 @@ export default function Index({ items, categories, filters = {} }: IndexProps) {
                                 <div className="border-t border-dashed border-muted/80 pt-4">
                                     <div className="flex items-center justify-between rounded-2xl bg-primary/5 p-4">
                                         <span className="text-lg font-bold">
-                                            Total Pembayaran
+                                            Grand Total
                                         </span>
                                         <span className="text-2xl font-black text-primary drop-shadow-sm">
                                             Rp{' '}
-                                            {totalPembayaran.toLocaleString(
-                                                'id-ID',
-                                            )}
+                                            {grandTotal.toLocaleString('id-ID')}
                                         </span>
                                     </div>
                                 </div>
                             </div>
-                            {/* Tombol Proses Payment nyala ketika keranjang ada isinya */}
-                            <Button
-                                className="w-full gap-3 rounded-2xl py-7 text-lg font-bold shadow-xl shadow-primary/20 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/30"
-                                disabled={cart.length === 0}
-                            >
-                                <CreditCard className="h-6 w-6" />
-                                Proses Pembayaran ({cart.length})
-                            </Button>
+                            {/* Panggil Modul Komponen Eksternal CheckoutDialog */}
+                            <CheckoutDialog
+                                open={isCheckoutOpen}
+                                setOpen={setIsCheckoutOpen}
+                                cartLength={cart.length}
+                                totalPembayaran={grandTotal}
+                                onOrderSubmit={handleSelesaikanPesanan}
+                            />
                         </CardFooter>
                     </Card>
                 </div>

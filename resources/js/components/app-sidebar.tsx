@@ -43,9 +43,9 @@ const mainNavItems: NavItem[] = [
         icon: ShoppingCart,
     },
     {
-        title: 'Role',
-        href: '/roles',
-        icon: UserCog,
+        title: 'Menu',
+        href: '/items',
+        icon: LayoutList,
     },
     {
         title: 'Category',
@@ -53,14 +53,14 @@ const mainNavItems: NavItem[] = [
         icon: Tags,
     },
     {
+        title: 'Role',
+        href: '/roles',
+        icon: UserCog,
+    },
+    {
         title: 'User',
         href: '/users',
         icon: Users,
-    },
-    {
-        title: 'Menu',
-        href: '/items',
-        icon: LayoutList,
     },
 ];
 

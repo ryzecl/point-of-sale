@@ -50,3 +50,10 @@ export interface Order {
     updated_at: string;
     deleted_at: string;
 }
+
+export interface CheckoutData {
+    paymentMethod: string;
+    paymentAmount: number;
+    tableNumber: number;
+    note: string;
+}

@@ -52,13 +52,6 @@ export const columns = (): ColumnDef<Order>[] => [
         header: 'Total',
     },
     {
-        accessorKey: 'price',
-        header: 'Price',
-        meta: {
-            className: 'capitalize',
-        },
-    },
-    {
         accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => {
@@ -100,6 +93,11 @@ export const columns = (): ColumnDef<Order>[] => [
     {
         accessorKey: 'note',
         header: 'Note',
+        cell: ({ row }) => {
+            const note = row.original.note;
+
+            return note || '-';
+        },
     },
     {
         accessorKey: 'created_at',
