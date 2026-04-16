@@ -43,22 +43,35 @@ export default function CheckoutDialog({
             : 0;
 
     const handleProcess = () => {
+        const finalPaymentAmount =
+            paymentMethod === 'transfer'
+                ? totalPembayaran
+                : (paymentAmount as number);
         // Panggil fungsi persetujuan utama di Cashier (Index.tsx) dengan melempar data yang sudah diisi
         onOrderSubmit({
             paymentMethod,
-            paymentAmount: paymentAmount as number,
+            paymentAmount: finalPaymentAmount,
             tableNumber: tableNumber as number,
             note,
         });
-
-        // Hapus input form jika jendela sengaja di simpan dan hilang
-        setPaymentAmount('');
-        setTableNumber('');
-        setNote('');
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog
+            open={open}
+            onOpenChange={(nextOpen) => {
+                setOpen(nextOpen);
+
+                // ✅ RESET HANYA SAAT DIALOG BENAR-BENAR DITUTUP
+                // Ini mencegah form kosong saat server sedang proses atau error.
+                if (!nextOpen) {
+                    setPaymentAmount('');
+                    setTableNumber('');
+                    setNote('');
+                    setPaymentMethod('cash');
+                }
+            }}
+        >
             <DialogTrigger asChild>
                 <Button
                     className="w-full gap-3 rounded-2xl py-7 text-lg font-bold shadow-xl shadow-primary/20 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/30"
@@ -160,54 +173,65 @@ export default function CheckoutDialog({
                     </div>
 
                     {/* Baris 2: Jumlah Bayar & Kembalian */}
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="payment">
-                                Jumlah Bayar Tertunai
-                            </Label>
-                            <div className="relative">
-                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <span className="font-semibold text-muted-foreground">
-                                        Rp
-                                    </span>
+                    {paymentMethod === 'cash' && (
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="payment">
+                                    Jumlah Bayar Tertunai
+                                </Label>
+                                <div className="relative">
+                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <span className="font-semibold text-muted-foreground">
+                                            Rp
+                                        </span>
+                                    </div>
+                                    <Input
+                                        id="payment"
+                                        type="number"
+                                        className="h-12 pl-9 text-lg font-bold"
+                                        placeholder="0"
+                                        value={paymentAmount}
+                                        onChange={(e) =>
+                                            setPaymentAmount(
+                                                e.target.value
+                                                    ? Number(e.target.value)
+                                                    : '',
+                                            )
+                                        }
+                                    />
                                 </div>
-                                <Input
-                                    id="payment"
-                                    type="number"
-                                    className="h-12 pl-9 text-lg font-bold"
-                                    placeholder="0"
-                                    value={paymentAmount}
-                                    onChange={(e) =>
-                                        setPaymentAmount(
-                                            e.target.value
-                                                ? Number(e.target.value)
-                                                : '',
-                                        )
+                                {/* Tombol Cepat Uang Pas */}
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="mt-1 h-7 w-max text-xs"
+                                    onClick={() =>
+                                        setPaymentAmount(totalPembayaran)
                                     }
-                                />
+                                >
+                                    Uang Pas
+                                </Button>
                             </div>
-                            {/* Tombol Cepat Uang Pas */}
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="mt-1 h-7 w-max text-xs"
-                                onClick={() =>
-                                    setPaymentAmount(totalPembayaran)
-                                }
-                            >
-                                Uang Pas
-                            </Button>
-                        </div>
 
-                        <div className="flex flex-col gap-2">
-                            <Label>Kembalian</Label>
-                            <div
-                                className={`flex h-12 items-center rounded-md border px-3 text-lg font-bold transition-colors ${kembalian > 0 ? 'border-green-500/20 bg-green-500/10 text-green-600' : 'bg-muted/50 text-muted-foreground'}`}
-                            >
-                                Rp {kembalian.toLocaleString('id-ID')}
+                            <div className="flex flex-col gap-2">
+                                <Label>Kembalian</Label>
+                                <div
+                                    className={`flex h-12 items-center rounded-md border px-3 text-lg font-bold transition-colors ${kembalian > 0 ? 'border-green-500/20 bg-green-500/10 text-green-600' : 'bg-muted/50 text-muted-foreground'}`}
+                                >
+                                    Rp {kembalian.toLocaleString('id-ID')}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
+
+                    {paymentMethod === 'transfer' && (
+                        <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
+                            <p className="text-sm text-blue-600 dark:text-blue-400">
+                                💡 Anda akan diarahkan ke halaman pembayaran
+                                Midtrans setelah menekan tombol di bawah.
+                            </p>
+                        </div>
+                    )}
 
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="note">Catatan Khusus (Opsional)</Label>
@@ -228,12 +252,15 @@ export default function CheckoutDialog({
                         className="text-md h-12 w-full rounded-xl font-bold"
                         disabled={
                             tableNumber === '' ||
-                            paymentAmount === '' ||
-                            paymentAmount < totalPembayaran
+                            (paymentMethod === 'cash' &&
+                                (paymentAmount === '' ||
+                                    paymentAmount < totalPembayaran))
                         }
                         onClick={handleProcess}
                     >
-                        Selesaikan Pesanan
+                        {paymentMethod === 'cash'
+                            ? 'Selesaikan Pesanan'
+                            : 'Lanjut ke Pembayaran'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

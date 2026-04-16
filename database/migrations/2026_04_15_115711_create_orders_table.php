@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('order_code')->unique();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->decimal('discount', 10, 2)->default(0);
-            $table->integer('subtotal');
-            $table->integer('tax');
-            $table->integer('grand_total');
+            $table->decimal('subtotal', 12, 2);
+            $table->decimal('tax', 12, 2);
+            $table->decimal('grand_total', 12, 2);
             $table->enum('status', ['pending', 'settlement', 'cancel', 'cooked', 'served'])->default('pending');
             $table->integer('table_number');
             $table->enum('payment_method', ['cash', 'transfer']);

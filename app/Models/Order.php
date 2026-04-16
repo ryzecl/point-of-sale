@@ -4,9 +4,12 @@ namespace App\Models;
 
 use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'order_code',
         'user_id',
@@ -20,6 +23,8 @@ class Order extends Model
         'payment_amount',
         'change_amount',
         'note',
+        'snap_token',
+        'midtrans_transaction_id',
     ];
 
     protected $casts = [

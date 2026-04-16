@@ -46,6 +46,8 @@ export interface Order {
     payment_amount: number;
     change_amount: number;
     note: string;
+    snap_token?: string;
+    midtrans_transaction_id?: string;
     created_at: string;
     updated_at: string;
     deleted_at: string;
@@ -56,4 +58,11 @@ export interface CheckoutData {
     paymentAmount: number;
     tableNumber: number;
     note: string;
+}
+
+export interface OrderSuccessData {
+    orderCode: string;
+    grandTotal: number;
+    snapToken?: string;
+    message: string;
 }

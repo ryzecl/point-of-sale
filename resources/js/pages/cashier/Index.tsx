@@ -1,6 +1,6 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { ShoppingCart, Search, X, Minus, Plus, RotateCcw } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,9 +13,11 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useFilter } from '@/hooks/use-filter';
-import type { Category, Item, CheckoutData } from '@/types';
+import { useMidtransSnap } from '@/hooks/use-midtrans-snap';
+import type { Category, Item, CheckoutData, OrderSuccessData } from '@/types';
 import CheckoutDialog from './components/CheckoutDialog';
 import PosFilter from './components/PosFilter';
+import SuccessDialog from './components/SuccessDialog';
 
 const categoryColors = [
     'bg-blue-500/20 text-blue-700 dark:bg-blue-500/30 dark:text-blue-300',
@@ -51,20 +53,92 @@ interface IndexProps {
         is_low_stock?: string;
         perPage?: string;
     };
+    midtransClientKey: string;
+    midtransSnapUrl: string;
 }
 
 type CartItem = Item & { quantity: number };
 
-export default function Index({ items, categories, filters = {} }: IndexProps) {
+export default function Index({
+    items,
+    categories,
+    filters = {},
+    midtransClientKey,
+    midtransSnapUrl,
+}: IndexProps) {
     const { search, setSearch, handleReset, applyFilters } = useFilter({
         routeName: '/cashier',
         initialFilters: filters,
     });
 
     const [cart, setCart] = useState<CartItem[]>([]);
-
     // State untuk mengendalikan Buka-tutup Dialog Checkout
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    // State baru untuk Success Dialog
+    const [successData, setSuccessData] = useState<OrderSuccessData | null>(
+        null,
+    );
+    const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+
+    // Inisialisasi Midtrans Snap
+    const { pay: snapPay } = useMidtransSnap({
+        clientKey: midtransClientKey,
+        snapUrl: midtransSnapUrl,
+    });
+
+    // Ambil flash message dari Inertia props
+    // Casting 'any' di awal atau definisikan SharedProps agar TS tidak rewel
+    const { flash } = usePage().props as any;
+    const orderSuccess = flash?.orderSuccess as OrderSuccessData | undefined;
+
+    useEffect(() => {
+        if (!orderSuccess) {
+            return;
+        }
+
+        if (orderSuccess.snapToken) {
+            // ✅ TUTUP dialog checkout LEBIH DULU agar tidak menghalangi popup Midtrans
+            setIsCheckoutOpen(false);
+
+            // Beri jeda sangat kecil agar Radix UI selesai membersihkan overlay/focus-trap
+            setTimeout(() => {
+                snapPay(orderSuccess.snapToken!, {
+                    onSuccess: () => {
+                        // Pembayaran berhasil di sisi Midtrans
+                        setSuccessData(orderSuccess);
+                        setIsSuccessOpen(true);
+                        setCart([]);
+                    },
+                    onPending: () => {
+                        // Pembayaran pending (transfer manual, dll)
+                        alert(
+                            'Pembayaran masih pending. Silakan cek status di halaman Order.',
+                        );
+                        setCart([]);
+                    },
+                    onError: () => {
+                        alert('Pembayaran gagal. Silakan coba lagi.');
+                    },
+                    onClose: () => {
+                        // User menutup popup tanpa menyelesaikan pembayaran
+                        console.log('Snap popup ditutup.');
+                    },
+                });
+            }, 100);
+        } else {
+            // Metode Cash: Langsung tampilkan Success Dialog
+            setSuccessData(orderSuccess);
+            setIsSuccessOpen(true);
+            setCart([]);
+            setIsCheckoutOpen(false);
+        }
+    }, [orderSuccess]);
+
+    // Handler tutup Success Dialog
+    const handleSuccessClose = () => {
+        setIsSuccessOpen(false);
+        setSuccessData(null);
+    };
 
     const products = items?.data ?? [];
 
@@ -145,9 +219,9 @@ export default function Index({ items, categories, filters = {} }: IndexProps) {
             },
             {
                 onSuccess: () => {
-                    // Jika Berhasil: Tutup dialog dan kosongkan keranjang
-                    setIsCheckoutOpen(false);
-                    setCart([]);
+                    // Kita tidak perlu menutup dialog atau hapus cart di sini lagi,
+                    // Karena sudah dihandle secara terpusat oleh useEffect di atas
+                    // yang memantau flash.orderSuccess dari server.
                 },
                 onError: (errors) => {
                     // Handle Error (Opsional: Bisa tampilkan toast)
@@ -161,6 +235,16 @@ export default function Index({ items, categories, filters = {} }: IndexProps) {
     return (
         <div className="flex min-h-[calc(100vh-64px)] flex-col bg-muted/20 p-4 lg:h-[calc(100vh-64px)] lg:flex-row lg:gap-8 lg:overflow-hidden lg:p-8">
             <Head title="Cashier (POS)" />
+
+            {/* Success Dialog */}
+            {successData && (
+                <SuccessDialog
+                    open={isSuccessOpen}
+                    onClose={handleSuccessClose}
+                    orderCode={successData.orderCode}
+                    grandTotal={successData.grandTotal}
+                />
+            )}
 
             {/* Left Section: Product Selection */}
             <div className="flex min-h-0 flex-1 flex-col gap-3">

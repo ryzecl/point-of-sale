@@ -24,7 +24,9 @@ class OfflineOrderStoreRequest extends FormRequest
     {
         return [
             'paymentMethod'  => 'required|in:cash,transfer',
-            'paymentAmount'  => 'required|numeric|min:0',
+            'paymentAmount'  => $this->paymentMethod === 'cash'
+                ? 'required|numeric|min:0'
+                : 'nullable|numeric|min:0',
             'tableNumber'    => 'required|integer|min:1',
             'note'           => 'nullable|string|max:255',
             'cart'           => 'required|array|min:1',

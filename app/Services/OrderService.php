@@ -9,9 +9,18 @@ use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
-    public function createOfflineOrder(array $data, int $userId): Order
+    public function __construct(
+        private readonly MidtransService $midtransService
+    ) {}
+
+    /**
+     * Membuat pesanan offline (Kasir POS).
+     *
+     * @return array{order: Order, snapToken: string|null}
+     */
+    public function createOfflineOrder(array $data, int $userId): array
     {
-        return DB::transaction(function () use ($data, $userId) {
+        $order = DB::transaction(function () use ($data, $userId) {
             // 1. Validasi Stok dan Kalkulasi Total
             $cartItems = $data['cart'];
             $subtotal = 0;
@@ -75,8 +84,19 @@ class OrderService
             $order->orderItems()->createMany($preparedItems);
 
             // Return beserta relasi (opsional jika dibutuhkan controller)
-            return $order->load('orderItems.item');
+            return $order->load('orderItems.item', 'user');
         });
+
+        $snapToken = null;
+        if ($data['paymentMethod'] === 'transfer') {
+            $snapToken = $this->midtransService->createSnapToken($order);
+            $order->update(['snap_token' => $snapToken]);
+        }
+
+        return [
+            'order' => $order,
+            'snapToken' => $snapToken,
+        ];
     }
 
     private function generateOrderCode(): string

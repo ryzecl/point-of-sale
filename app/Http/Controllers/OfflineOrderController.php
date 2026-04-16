@@ -46,23 +46,37 @@ class OfflineOrderController extends Controller
             'items' => $items,
             'categories' => $categories,
             'filters' => $request->only(['search', 'category_id', 'min_price', 'max_price']),
+            'midtransClientKey' => config('midtrans.client_key'),
+            'midtransSnapUrl'   => config('midtrans.snap_url'),
         ]);
     }
 
     public function store(OfflineOrderStoreRequest $request)
     {
         try {
-            // Data sudah tervalidasi oleh Form Request
             $validated = $request->validated();
+            $result = $this->orderService->createOfflineOrder($validated, Auth::id());
 
-            // Kita mengirimkan data array dan ID user (kasir) yang sedang login
-            $order = $this->orderService->createOfflineOrder($validated, Auth::id());
+            $order = $result['order'];
+            $snapToken = $result['snapToken'];
 
-            // Redirect kembali ke kasir dengan pesan sukses (toast/flash)
-            return redirect()->route('cashier.index')
-                ->with('success', "Pesanan #{$order->order_code} berhasil diproses!");
+            // Jika metode cash: redirect seperti biasa
+            if ($validated['paymentMethod'] === 'cash') {
+                return back()->with('orderSuccess', [
+                    'orderCode'  => $order->order_code,
+                    'grandTotal' => $order->grand_total,
+                    'message'    => "Pesanan #{$order->order_code} berhasil diproses!",
+                ]);
+            }
+
+            // Jika metode transfer: kembalikan snap token ke frontend
+            return back()->with('orderSuccess', [
+                'orderCode'  => $order->order_code,
+                'grandTotal' => $order->grand_total,
+                'snapToken'  => $snapToken,
+                'message'    => "Silakan selesaikan pembayaran.",
+            ]);
         } catch (\Exception $e) {
-            // Jika ada error (seperti stok habis di tengah jalan)
             return back()->withErrors([
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ]);
