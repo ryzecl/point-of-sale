@@ -267,7 +267,7 @@ export function DataTable<TData, TValue>({
                         <div className="flex items-center space-x-2">
                             <Button
                                 variant="outline"
-                                className="h-8 w-12 p-0"
+                                className="h-8 w-16 p-0"
                                 onClick={() => {
                                     if (meta && onPageChange) {
                                         onPageChange(meta.current_page - 1);
@@ -282,7 +282,7 @@ export function DataTable<TData, TValue>({
                             </Button>
                             <Button
                                 variant="outline"
-                                className="h-8 w-12 p-0"
+                                className="h-8 w-16 p-0"
                                 onClick={() => {
                                     if (meta && onPageChange) {
                                         onPageChange(meta.current_page + 1);

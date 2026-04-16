@@ -1,4 +1,4 @@
-import { CreditCard } from 'lucide-react';
+import { Banknote, CreditCard, QrCode } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -13,13 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import type { CheckoutData } from '@/types';
 
 interface CheckoutDialogProps {
@@ -37,7 +31,7 @@ export default function CheckoutDialog({
     totalPembayaran,
     onOrderSubmit,
 }: CheckoutDialogProps) {
-    // State lokal khusus untuk kelengkapan form Checkout saja (Dipisahkan agar Index.tsx tidak kepanjangan)
+    // State lokal khusus untuk kelengkapan form Checkout saja
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [paymentAmount, setPaymentAmount] = useState<number | ''>('');
     const [tableNumber, setTableNumber] = useState<number | ''>('');
@@ -76,7 +70,7 @@ export default function CheckoutDialog({
             </DialogTrigger>
 
             {/* Form Dialog Popup */}
-            <DialogContent className="sm:max-w-md md:max-w-xl">
+            <DialogContent className="max-h-[95vh] overflow-y-auto sm:max-w-md md:max-w-xl">
                 <DialogHeader>
                     <DialogTitle className="text-2xl">
                         Payment Detail
@@ -103,9 +97,10 @@ export default function CheckoutDialog({
 
                 {/* Grid Input */}
                 <div className="grid gap-4 py-2">
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* Baris 1: No Table & Metode Pembayaran */}
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="table">No. Meja</Label>
+                            <Label htmlFor="table">No. Table</Label>
                             <Input
                                 id="table"
                                 type="number"
@@ -122,26 +117,50 @@ export default function CheckoutDialog({
                         </div>
                         <div className="flex flex-col gap-2">
                             <Label>Metode Pembayaran</Label>
-                            <Select
-                                value={paymentMethod}
-                                onValueChange={setPaymentMethod}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Pilih Metode" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="cash">
+                            <div className="grid grid-cols-2 gap-3">
+                                {/* Opsi Tunai (Cash) */}
+                                <div
+                                    onClick={() => setPaymentMethod('cash')}
+                                    className={`flex h-10 cursor-pointer items-center gap-3 rounded-xl border p-2 transition-all duration-200 hover:bg-primary/5 ${
+                                        paymentMethod === 'cash'
+                                            ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                                            : 'border-muted bg-background text-muted-foreground'
+                                    }`}
+                                >
+                                    <Banknote
+                                        className={`h-4 w-4 ${paymentMethod === 'cash' ? 'text-primary' : 'text-muted-foreground'}`}
+                                    />
+                                    <span
+                                        className={`text-xs font-medium ${paymentMethod === 'cash' ? 'text-primary' : ''}`}
+                                    >
                                         Tunai (Cash)
-                                    </SelectItem>
-                                    <SelectItem value="transfer">
-                                        Transfer Bank / QRIS
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
+                                    </span>
+                                </div>
+
+                                {/* Opsi Transfer / QRIS */}
+                                <div
+                                    onClick={() => setPaymentMethod('transfer')}
+                                    className={`flex h-10 cursor-pointer items-center gap-3 rounded-xl border p-2 transition-all duration-200 hover:bg-primary/5 ${
+                                        paymentMethod === 'transfer'
+                                            ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                                            : 'border-muted bg-background text-muted-foreground'
+                                    }`}
+                                >
+                                    <QrCode
+                                        className={`h-4 w-4 ${paymentMethod === 'transfer' ? 'text-primary' : 'text-muted-foreground'}`}
+                                    />
+                                    <span
+                                        className={`text-xs font-medium ${paymentMethod === 'transfer' ? 'text-primary' : ''}`}
+                                    >
+                                        Bank / QRIS
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* Baris 2: Jumlah Bayar & Kembalian */}
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="payment">
                                 Jumlah Bayar Tertunai
@@ -192,8 +211,9 @@ export default function CheckoutDialog({
 
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="note">Catatan Khusus (Opsional)</Label>
-                        <Input
+                        <Textarea
                             id="note"
+                            className="min-h-[100px]"
                             placeholder="Contoh: Pisah bon, tidak pakai bawang..."
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
