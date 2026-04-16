@@ -1,10 +1,7 @@
 import { Head, router } from '@inertiajs/react';
-import { AlertTriangle, Package, PackageX } from 'lucide-react';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
 import { useFilter } from '@/hooks/use-filter';
-import { cn } from '@/lib/utils';
 
 import type { Order } from '@/types';
 import { columns } from './columns';
@@ -32,7 +29,7 @@ interface IndexProps {
 
 export default function Index({ orders, filters = {} }: IndexProps) {
     // Gunakan custom hook
-    const { search, setSearch, handleReset, applyFilters } = useFilter({
+    const { search, setSearch } = useFilter({
         routeName: '/orders',
         initialFilters: filters,
     });

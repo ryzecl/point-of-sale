@@ -26,13 +26,13 @@ export function useMidtransSnap({
     clientKey,
     snapUrl,
 }: UseMidtransSnapOptions) {
-    const [isLoaded, setIsLoaded] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(
+        () => typeof window !== 'undefined' && !!window.snap,
+    );
 
     useEffect(() => {
         // Jangan load ulang jika sudah ada
-        if (window.snap) {
-            setIsLoaded(true);
-
+        if (typeof window !== 'undefined' && window.snap) {
             return;
         }
 

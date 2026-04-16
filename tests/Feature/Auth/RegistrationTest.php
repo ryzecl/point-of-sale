@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Role;
 use Laravel\Fortify\Features;
 
 beforeEach(function () {
@@ -13,6 +14,8 @@ test('registration screen can be rendered', function () {
 });
 
 test('new users can register', function () {
+    Role::factory()->count(5)->create();
+
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
         'email' => 'test@example.com',

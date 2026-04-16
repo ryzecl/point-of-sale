@@ -97,11 +97,11 @@ export default function Index({
         }
 
         if (orderSuccess.snapToken) {
-            // ✅ TUTUP dialog checkout LEBIH DULU agar tidak menghalangi popup Midtrans
-            setIsCheckoutOpen(false);
-
             // Beri jeda sangat kecil agar Radix UI selesai membersihkan overlay/focus-trap
             setTimeout(() => {
+                // ✅ TUTUP dialog checkout di dalam timeout agar tidak memicu cascading render
+                setIsCheckoutOpen(false);
+
                 snapPay(orderSuccess.snapToken!, {
                     onSuccess: () => {
                         // Pembayaran berhasil di sisi Midtrans
@@ -127,12 +127,15 @@ export default function Index({
             }, 100);
         } else {
             // Metode Cash: Langsung tampilkan Success Dialog
-            setSuccessData(orderSuccess);
-            setIsSuccessOpen(true);
-            setCart([]);
-            setIsCheckoutOpen(false);
+            // Wrap in setTimeout to avoid cascading render lint error
+            setTimeout(() => {
+                setSuccessData(orderSuccess);
+                setIsSuccessOpen(true);
+                setCart([]);
+                setIsCheckoutOpen(false);
+            }, 0);
         }
-    }, [orderSuccess]);
+    }, [orderSuccess, snapPay]);
 
     // Handler tutup Success Dialog
     const handleSuccessClose = () => {
