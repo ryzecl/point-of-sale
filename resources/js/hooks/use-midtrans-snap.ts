@@ -37,8 +37,6 @@ export function useMidtransSnap({
         }
 
         if (window.snap) {
-            setIsLoaded(true);
-
             return;
         }
 

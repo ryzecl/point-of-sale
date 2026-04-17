@@ -14,7 +14,8 @@ import type { ColumnDef } from '@tanstack/react-table';
 //     AlertDialogTrigger,
 // } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-// import { Button } from '@/components/ui/button';
+import { formatRelativeTime, formatDateTime } from '@/lib/date-utils';
+import { formatCurrency } from '@/lib/format-utils';
 import type { Order } from '@/types';
 
 export const columns = (): ColumnDef<Order>[] => [
@@ -40,7 +41,7 @@ export const columns = (): ColumnDef<Order>[] => [
 
             return (
                 <div className="flex items-center gap-2">
-                    <span className="font-medium text-foreground">
+                    <span className="font-medium text-foreground capitalize">
                         {userName}
                     </span>
                 </div>
@@ -50,6 +51,13 @@ export const columns = (): ColumnDef<Order>[] => [
     {
         accessorKey: 'grand_total',
         header: 'Total',
+        cell: ({ row }) => {
+            return (
+                <span className="font-bold text-primary">
+                    {formatCurrency(Number(row.original.grand_total))}
+                </span>
+            );
+        },
     },
     {
         accessorKey: 'status',
@@ -84,11 +92,17 @@ export const columns = (): ColumnDef<Order>[] => [
     },
     {
         accessorKey: 'table_number',
-        header: 'Table Number',
+        header: 'No. Table',
+        meta: {
+            className: 'w-10 text-center',
+        },
     },
     {
         accessorKey: 'payment_method',
         header: 'Payment Method',
+        meta: {
+            className: 'capitalize',
+        },
     },
     {
         accessorKey: 'note',
@@ -102,6 +116,20 @@ export const columns = (): ColumnDef<Order>[] => [
     {
         accessorKey: 'created_at',
         header: 'Created At',
+        cell: ({ row }) => {
+            const date = row.original.created_at;
+
+            return (
+                <div className="flex flex-col">
+                    <span className="font-medium text-foreground">
+                        {formatRelativeTime(date)}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                        {formatDateTime(date)}
+                    </span>
+                </div>
+            );
+        },
     },
     // {
     //     id: 'actions',

@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useFilter } from '@/hooks/use-filter';
 import { useMidtransSnap } from '@/hooks/use-midtrans-snap';
+import { formatCurrency } from '@/lib/format-utils';
 import type { Category, Item, CheckoutData, OrderSuccessData } from '@/types';
 import CheckoutDialog from './components/CheckoutDialog';
 import PosFilter from './components/PosFilter';
@@ -145,6 +146,8 @@ export default function Index({
             }, 100);
         } else {
             // Metode Cash: Langsung tampilkan Success Dialog
+            processedOrderRef.current = orderSuccess.orderCode;
+
             // Wrap in setTimeout to avoid cascading render lint error
             setTimeout(() => {
                 setSuccessData(orderSuccess);
@@ -440,13 +443,8 @@ export default function Index({
 
                                         <CardContent className="bg-card px-4 pb-4">
                                             <div className="flex items-baseline gap-1">
-                                                <span className="text-xs font-bold text-primary">
-                                                    Rp.
-                                                </span>
-                                                <span className="text-md font-bold tracking-tight text-primary">
-                                                    {item.price.toLocaleString(
-                                                        'id-ID',
-                                                    )}
+                                                <span className="text-md font-bold tracking-tight text-primary uppercase">
+                                                    {formatCurrency(item.price)}
                                                 </span>
                                             </div>
                                         </CardContent>
@@ -562,18 +560,17 @@ export default function Index({
                                                         {cartItem.name}
                                                     </h4>
                                                     <span className="mt-0.5 text-xs font-medium text-muted-foreground">
-                                                        @ Rp{' '}
-                                                        {cartItem.price.toLocaleString(
-                                                            'id-ID',
+                                                        @{' '}
+                                                        {formatCurrency(
+                                                            cartItem.price,
                                                         )}
                                                     </span>
                                                 </div>
                                                 <div className="text-right text-sm font-bold whitespace-nowrap text-foreground">
-                                                    Rp{' '}
-                                                    {(
+                                                    {formatCurrency(
                                                         cartItem.price *
-                                                        cartItem.quantity
-                                                    ).toLocaleString('id-ID')}
+                                                            cartItem.quantity,
+                                                    )}
                                                 </div>
                                             </div>
                                             {/* Baris Bawah: Aksesoris Control (+/-) */}
@@ -624,9 +621,7 @@ export default function Index({
                                     <span className="text-muted-foreground">
                                         Subtotal
                                     </span>
-                                    <span>
-                                        Rp {subtotal.toLocaleString('id-ID')}
-                                    </span>
+                                    <span>{formatCurrency(subtotal)}</span>
                                 </div>
                                 <div className="flex justify-between text-sm font-medium">
                                     <span className="flex items-center gap-2 text-muted-foreground">
@@ -638,9 +633,7 @@ export default function Index({
                                             PPN
                                         </Badge>
                                     </span>
-                                    <span>
-                                        Rp {tax.toLocaleString('id-ID')}
-                                    </span>
+                                    <span>{formatCurrency(tax)}</span>
                                 </div>
                                 <div className="border-t border-dashed border-muted/80 pt-4">
                                     <div className="flex items-center justify-between rounded-2xl bg-primary/5 p-4">
@@ -648,8 +641,7 @@ export default function Index({
                                             Grand Total
                                         </span>
                                         <span className="text-2xl font-black text-primary drop-shadow-sm">
-                                            Rp{' '}
-                                            {grandTotal.toLocaleString('id-ID')}
+                                            {formatCurrency(grandTotal)}
                                         </span>
                                     </div>
                                 </div>

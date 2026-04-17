@@ -9,6 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { formatCurrency } from '@/lib/format-utils';
 
 interface SuccessDialogProps {
     open: boolean;
@@ -59,7 +60,7 @@ export default function SuccessDialog({
                             Grand Total
                         </span>
                         <span className="text-xl font-black text-primary">
-                            Rp {grandTotal.toLocaleString('id-ID')}
+                            {formatCurrency(grandTotal)}
                         </span>
                     </div>
                 </div>

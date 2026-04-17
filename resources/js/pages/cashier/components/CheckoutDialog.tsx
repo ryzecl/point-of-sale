@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { formatCurrency } from '@/lib/format-utils';
 import type { CheckoutData } from '@/types';
 
 interface CheckoutDialogProps {
@@ -104,7 +105,7 @@ export default function CheckoutDialog({
                         </span>
                     </div>
                     <span className="text-2xl font-black text-primary">
-                        Rp {totalPembayaran.toLocaleString('id-ID')}
+                        {formatCurrency(totalPembayaran)}
                     </span>
                 </div>
 
@@ -218,8 +219,8 @@ export default function CheckoutDialog({
                                 <div
                                     className={`flex h-12 items-center rounded-md border px-3 text-lg font-bold transition-colors ${kembalian > 0 ? 'border-green-500/20 bg-green-500/10 text-green-600' : 'bg-muted/50 text-muted-foreground'}`}
                                 >
-                                    Rp {kembalian.toLocaleString('id-ID')}
-                                </div>
+                                {formatCurrency(kembalian)}
+                            </div>
                             </div>
                         </div>
                     )}
