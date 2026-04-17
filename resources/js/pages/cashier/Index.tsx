@@ -1,6 +1,6 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { ShoppingCart, Search, X, Minus, Plus, RotateCcw } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -81,7 +81,7 @@ export default function Index({
     const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
     // Inisialisasi Midtrans Snap
-    const { pay: snapPay } = useMidtransSnap({
+    const { pay: snapPay, isLoaded: isSnapLoaded } = useMidtransSnap({
         clientKey: midtransClientKey,
         snapUrl: midtransSnapUrl,
     });
@@ -91,12 +91,30 @@ export default function Index({
     const { flash } = usePage().props as any;
     const orderSuccess = flash?.orderSuccess as OrderSuccessData | undefined;
 
+    // ✅ FIX: Mendaftar Tracking Ref mencegah loop infinitif dan popup kembar
+    const processedOrderRef = useRef<string | null>(null);
+
     useEffect(() => {
         if (!orderSuccess) {
             return;
         }
 
+        // Cegah merespons mutliganda untuk pesanan yang persis sama ID-nya
+        if (processedOrderRef.current === orderSuccess.orderCode) {
+            return;
+        }
+
         if (orderSuccess.snapToken) {
+            // ✅ FIX: Tahan eksekusi sebelum script selesai memuat!! (Mencegah Silent fail)
+            if (!isSnapLoaded) {
+                console.log('Menunggu Snap.js terunduh oleh browser...');
+
+                return; // Keluar dulu, saat isSnapLoaded = true, useEffect akan triger sendiri
+            }
+
+            // Daftarkan order ini sebagai 'telah tayang dialognya'
+            processedOrderRef.current = orderSuccess.orderCode;
+
             // Beri jeda sangat kecil agar Radix UI selesai membersihkan overlay/focus-trap
             setTimeout(() => {
                 // ✅ TUTUP dialog checkout di dalam timeout agar tidak memicu cascading render
@@ -135,7 +153,7 @@ export default function Index({
                 setIsCheckoutOpen(false);
             }, 0);
         }
-    }, [orderSuccess, snapPay]);
+    }, [orderSuccess, snapPay, isSnapLoaded]);
 
     // Handler tutup Success Dialog
     const handleSuccessClose = () => {
@@ -229,6 +247,10 @@ export default function Index({
                 onError: (errors) => {
                     // Handle Error (Opsional: Bisa tampilkan toast)
                     console.error('Gagal memproses pesanan:', errors);
+                    alert(
+                        'Order Error: ' +
+                            (errors.message || 'Gagal memproses pesanan.'),
+                    );
                 },
                 preserveScroll: true,
             },

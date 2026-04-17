@@ -77,6 +77,7 @@ class OfflineOrderController extends Controller
                 'message'    => "Silakan selesaikan pembayaran.",
             ]);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Order Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return back()->withErrors([
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ]);
