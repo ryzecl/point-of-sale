@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { EditIcon, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,6 +31,15 @@ const FormRole = ({ role }: FormRoleProps) => {
             role_name: role?.role_name || '',
             description: role?.description || '',
         });
+
+    useEffect(() => {
+        if (open && role) {
+            setData({
+                role_name: role.role_name || '',
+                description: role.description || '',
+            });
+        }
+    }, [open, role, setData]);
 
     const handleOpenChange = (isOpen: boolean) => {
         setOpen(isOpen);

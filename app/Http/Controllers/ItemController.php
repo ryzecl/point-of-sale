@@ -17,20 +17,18 @@ class ItemController extends Controller
     public function index(Request $request, ItemService $itemService)
     {
         $perPage = $request->query('perPage', 25);
+
+        $totalItemStats = Item::query();
+
         $query = Item::with('category');
 
         // Gunakan service
         $query = $itemService->applyFilters($query, $request->all());
-        // Statistik juga menggunakan query yang sama (clone agar tidak merusak query utama)
+        // Statistics before pagination (clone so we don't modify the main query)
         $stats = [
+            'totalItemStats' => $totalItemStats->count(),
             'total' => (clone $query)->count(),
-            'inactive' => (clone $query)->where('is_active', 0)->count(),
-            'low_stock' => (clone $query)->whereColumn('stock', '<=', 'min_stock')->count(),
-        ];
-
-        // Statistics before pagination
-        $stats = [
-            'total' => (clone $query)->count(),
+            'active' => (clone $query)->where('is_active', 1)->count(),
             'inactive' => (clone $query)->where('is_active', 0)->count(),
             'low_stock' => (clone $query)->whereColumn('stock', '<=', 'min_stock')->count(),
         ];

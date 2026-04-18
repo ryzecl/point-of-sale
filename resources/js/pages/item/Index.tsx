@@ -1,5 +1,5 @@
 import { Head, router } from '@inertiajs/react';
-import { AlertTriangle, Package, PackageX } from 'lucide-react';
+import { AlertTriangle, Package, PackageCheck, PackageX } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
@@ -36,7 +36,9 @@ interface IndexProps {
         perPage?: string;
     };
     stats: {
+        totalItemStats: number;
         total: number;
+        active: number;
         inactive: number;
         low_stock: number;
     };
@@ -72,6 +74,13 @@ export default function Index({
         );
     };
 
+    const toggleActive = () => {
+        applyFilters({
+            is_active: filters.is_active === '1' ? undefined : '1',
+            is_low_stock: undefined,
+        });
+    };
+
     const toggleInactive = () => {
         applyFilters({
             is_active: filters.is_active === '0' ? undefined : '0',
@@ -91,14 +100,19 @@ export default function Index({
     };
 
     const isAllActive = !filters.is_active && !filters.is_low_stock;
+    const isActiveActive = filters.is_active === '1';
     const isInactiveActive = filters.is_active === '0';
     const isLowStockActive = filters.is_low_stock === '1';
+
+    const selectedCategory = categories.data.find(
+        (c) => c.id.toString() === filters.category_id,
+    );
 
     return (
         <>
             <Head title="Menu Management" />
             <div className="container mx-auto">
-                <div className="grid gap-4 p-5 md:grid-cols-3">
+                <div className="grid grid-cols-2 gap-4 p-5 md:grid-cols-4">
                     <Card
                         className={cn(
                             'cursor-pointer overflow-hidden border-2 bg-blue-50/50 shadow-sm transition-all hover:bg-blue-100/50 dark:bg-blue-950/20 dark:hover:bg-blue-900/30',
@@ -109,8 +123,13 @@ export default function Index({
                         onClick={clearStatusFilters}
                     >
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                            <CardTitle className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 dark:text-blue-400">
                                 Total Menu
+                                {selectedCategory && (
+                                    <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase dark:bg-blue-900/40">
+                                        {selectedCategory.cat_name}
+                                    </span>
+                                )}
                             </CardTitle>
                             <Package className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                         </CardHeader>
@@ -119,7 +138,36 @@ export default function Index({
                                 {stats.total}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                All filtered items
+                                All filtered items of{' '}
+                                <span className="font-medium text-blue-900 dark:text-blue-300">
+                                    {stats.totalItemStats}
+                                </span>{' '}
+                                Available
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card
+                        className={cn(
+                            'cursor-pointer overflow-hidden border-2 bg-green-50/50 shadow-sm transition-all hover:bg-green-100/50 dark:bg-green-950/20 dark:hover:bg-green-900/30',
+                            isActiveActive
+                                ? 'border-green-500/50 ring-2 ring-green-500/20'
+                                : 'border-transparent',
+                        )}
+                        onClick={toggleActive}
+                    >
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-green-600 dark:text-green-400">
+                                Active Menu
+                            </CardTitle>
+                            <PackageCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                                {stats.active}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                Available Menu
                             </p>
                         </CardContent>
                     </Card>

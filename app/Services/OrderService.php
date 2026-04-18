@@ -6,12 +6,27 @@ use App\Models\Item;
 use App\Models\Order;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 class OrderService
 {
     public function __construct(
         private readonly MidtransService $midtransService
     ) {}
+
+    public function applyFilters(Builder $query, array $filters): Builder
+    {
+        return $query
+            //Filter berdasarkan Cari
+            ->when($filters['search'] ?? null, function ($q, $search) {
+                $q->where('order_code', 'like', "%{$search}%");
+            })
+
+            //Filter berdasarkan status
+            ->when($filters['status'] ?? null, function ($q, $status) {
+                $q->where('status', $status);
+            });
+    }
 
     /**
      * Membuat pesanan offline (Kasir POS).

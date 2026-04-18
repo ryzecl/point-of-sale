@@ -5,7 +5,6 @@ import { useFilter } from '@/hooks/use-filter';
 
 import type { Order } from '@/types';
 import { columns } from './columns';
-// import OrderFilter from './components/OrderFilter';
 
 interface IndexProps {
     orders: {
@@ -165,10 +164,9 @@ export default function Index({ orders, filters = {} }: IndexProps) {
                     toolbar={
                         <>
                             {/* <OrderFilter
-                                categories={categories.data}
                                 initialFilters={filters}
-                                onFilter={applyFilters}
-                                onReset={handleReset}
+                                // onFilter={applyFilters}
+                                // onReset={handleReset}
                             /> */}
                         </>
                     }

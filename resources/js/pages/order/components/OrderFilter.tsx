@@ -26,10 +26,8 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
-import type { Category } from '@/types';
 
-interface ItemFilterProps {
-    categories: Category[];
+interface OrderFilterProps {
     initialFilters: {
         category_id?: string;
         min_price?: string;
@@ -40,12 +38,11 @@ interface ItemFilterProps {
     onReset: () => void;
 }
 
-export default function ItemFilter({
-    categories,
+export default function OrderFilter({
     initialFilters,
     onFilter,
     onReset,
-}: ItemFilterProps) {
+}: OrderFilterProps) {
     const [open, setOpen] = useState(false);
     const [filters, setFilters] = useState(initialFilters);
 

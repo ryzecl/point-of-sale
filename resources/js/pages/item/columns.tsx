@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/format-utils';
 import type { Item, Category } from '@/types';
 import FormItem from './components/FormItem';
 
@@ -78,8 +79,12 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
         accessorKey: 'price',
         header: 'Price',
-        meta: {
-            className: 'capitalize',
+        cell: ({ row }) => {
+            return (
+                <span className="font-bold text-primary">
+                    {formatCurrency(Number(row.original.price))}
+                </span>
+            );
         },
     },
     {

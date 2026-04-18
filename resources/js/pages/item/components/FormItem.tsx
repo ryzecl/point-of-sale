@@ -2,7 +2,7 @@
 
 import { useForm, router } from '@inertiajs/react'; // Tambahkan router
 import { EditIcon, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -50,6 +50,22 @@ const FormItem = ({ item, categories }: FormItemProps) => {
             is_active: item ? !!item.is_active : true,
             img: null as File | string | null, // Pakai "as" agar bisa menerima File atau String (path lama)
         });
+
+    // Sinkronisasi data saat item berubah atau modal dibuka
+    useEffect(() => {
+        if (open && item) {
+            setData({
+                name: item.name || '',
+                description: item.description || '',
+                price: item.price,
+                stock: item.stock,
+                min_stock: item.min_stock,
+                category_id: item.category_id?.toString(),
+                is_active: item.is_active,
+                img: null,
+            });
+        }
+    }, [open, item, setData]);
 
     const handleOpenChange = (isOpen: boolean) => {
         setOpen(isOpen);

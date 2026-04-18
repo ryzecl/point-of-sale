@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { EditIcon, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -41,6 +41,17 @@ const FormUser = ({ user, roles }: FormUserProps) => {
             password: '',
             role_id: user?.role_id?.toString() || '',
         });
+
+    useEffect(() => {
+        if (open && user) {
+            setData({
+                name: user.name || '',
+                email: user.email || '',
+                password: '',
+                role_id: user.role_id?.toString() || '',
+            });
+        }
+    }, [open, user, setData]);
 
     const handleOpenChange = (isOpen: boolean) => {
         setOpen(isOpen);

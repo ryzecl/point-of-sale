@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { EditIcon, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,6 +31,15 @@ const FormCategory = ({ category }: FormCategoryProps) => {
             cat_name: category?.cat_name || '',
             description: category?.description || '',
         });
+
+    useEffect(() => {
+        if (open && category) {
+            setData({
+                cat_name: category.cat_name || '',
+                description: category.description || '',
+            });
+        }
+    }, [open, category, setData]);
 
     const handleOpenChange = (isOpen: boolean) => {
         setOpen(isOpen);
