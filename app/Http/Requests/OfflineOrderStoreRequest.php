@@ -23,6 +23,7 @@ class OfflineOrderStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'customerName'   => 'required|string|max:100',
             'paymentMethod'  => 'required|in:cash,transfer',
             'paymentAmount'  => $this->paymentMethod === 'cash'
                 ? 'required|numeric|min:0'

@@ -13,6 +13,8 @@ class OrderController extends Controller
     public function index(Request $request, OrderService $orderService)
     {
         $perPage = $request->query('perPage', 25);
+
+        $totalOrderStats = Order::query();
         // Mencegah N+1 Problem: Menggunakan 'with' untuk memuat Relasi berlapis
         // - 'user' -> load data user/kasir yg memproses
         // - 'orderItems.item' -> load isi struk beserta objek master detail item-nya masing-masing
@@ -21,18 +23,30 @@ class OrderController extends Controller
         // Pencarian (Search) by Order Code
         $query = $orderService->applyFilters($query, $request->all());
 
-        // $stats = [
-        //     'total' => (clone $query)->count(),
-        //     'inactive' => (clone $query)->where('is_active', 0)->count(),
-        //     'low_stock' => (clone $query)->whereColumn('stock', '<=', 'min_stock')->count(),
-        // ];
+        $stats = [
+            'totalOrderStats' => $totalOrderStats->count(),
+            'total' => $query->clone()->count(),
+            'pending' => $query->clone()->where('status', 'pending')->count(),
+            'settlement' => $query->clone()->where('status', 'settlement')->count(),
+            'cooked' => $query->clone()->where('status', 'cooked')->count(),
+            'served' => $query->clone()->where('status', 'served')->count(),
+            'cancel' => $query->clone()->whereIn('status', ['expire', 'cancel'])->count(),
+        ];
 
         // Selalu urutkan dari pesanan terbaru (Latest)
         $orders = OrderResource::collection($query->latestDeterministic()->paginate((int) $perPage)->withQueryString());
 
         return Inertia::render('order/Index', [
             'orders' => $orders,
-            'filters' => $request->only(['search', 'status']),
+            'stats' => $stats,
+            'filters' => $request->only(['search', 'status', 'perPage']),
+        ]);
+    }
+
+    public function show(Order $order)
+    {
+        return Inertia::render('order/Show', [
+            'order' => new OrderResource($order->load(['user', 'orderItems.item'])),
         ]);
     }
 }

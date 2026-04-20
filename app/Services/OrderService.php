@@ -24,7 +24,11 @@ class OrderService
 
             //Filter berdasarkan status
             ->when($filters['status'] ?? null, function ($q, $status) {
-                $q->where('status', $status);
+                if (is_string($status) && str_contains($status, ',')) {
+                    $q->whereIn('status', explode(',', $status));
+                } else {
+                    $q->where('status', $status);
+                }
             });
     }
 
@@ -82,6 +86,7 @@ class OrderService
             // 4. Record Data Pesanan Utama (Order)
             $order = Order::create([
                 'order_code'     => $this->generateOrderCode(),
+                'customer_name'  => $data['customerName'],
                 'user_id'        => $userId,
                 'subtotal'       => $subtotal,
                 'tax'            => $tax,

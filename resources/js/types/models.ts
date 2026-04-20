@@ -1,3 +1,4 @@
+import type { User } from './auth';
 export interface Role {
     id: number;
     role_name: string;
@@ -35,6 +36,7 @@ export interface Item {
 export interface Order {
     id: number;
     order_code: string;
+    customer_name: string;
     user_id: number;
     discount: number;
     subtotal: number;
@@ -51,9 +53,25 @@ export interface Order {
     created_at: string;
     updated_at: string;
     deleted_at: string;
+    user?: User;
+    order_items?: OrderItem[];
+}
+
+export interface OrderItem {
+    id: number;
+    order_id: number;
+    item_id: number;
+    item?: Item;
+    quantity: number;
+    price: number;
+    tax: number;
+    total_price: number;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface CheckoutData {
+    customerName: string;
     paymentMethod: string;
     paymentAmount: number;
     tableNumber: number;

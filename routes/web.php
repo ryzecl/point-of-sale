@@ -53,6 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('orders')->controller(OrderController::class)->group(function () {
         Route::get('/', 'index')->name('orders.index');
+        Route::get('/{order}', 'show')->name('orders.show');
     });
 });
 

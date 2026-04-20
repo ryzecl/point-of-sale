@@ -33,6 +33,7 @@ export default function CheckoutDialog({
     onOrderSubmit,
 }: CheckoutDialogProps) {
     // State lokal khusus untuk kelengkapan form Checkout saja
+    const [customerName, setCustomerName] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [paymentAmount, setPaymentAmount] = useState<number | ''>('');
     const [tableNumber, setTableNumber] = useState<number | ''>('');
@@ -50,6 +51,7 @@ export default function CheckoutDialog({
                 : (paymentAmount as number);
         // Panggil fungsi persetujuan utama di Cashier (Index.tsx) dengan melempar data yang sudah diisi
         onOrderSubmit({
+            customerName,
             paymentMethod,
             paymentAmount: finalPaymentAmount,
             tableNumber: tableNumber as number,
@@ -66,6 +68,7 @@ export default function CheckoutDialog({
                 // ✅ RESET HANYA SAAT DIALOG BENAR-BENAR DITUTUP
                 // Ini mencegah form kosong saat server sedang proses atau error.
                 if (!nextOpen) {
+                    setCustomerName('');
                     setPaymentAmount('');
                     setTableNumber('');
                     setNote('');
@@ -107,6 +110,23 @@ export default function CheckoutDialog({
                     <span className="text-2xl font-black text-primary">
                         {formatCurrency(totalPembayaran)}
                     </span>
+                </div>
+
+                {/* Baris Utama: Nama Pelanggan */}
+                <div className="flex flex-col gap-2">
+                    <Label htmlFor="customerName" className="font-bold">
+                        Nama Pelanggan
+                    </Label>
+                    <Input
+                        id="customerName"
+                        type="text"
+                        placeholder="Contoh: Budi Santoso"
+                        autoComplete="off"
+                        autoFocus
+                        className="h-12 text-lg font-semibold"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                    />
                 </div>
 
                 {/* Grid Input */}
@@ -252,6 +272,7 @@ export default function CheckoutDialog({
                         size="lg"
                         className="text-md h-12 w-full rounded-xl font-bold"
                         disabled={
+                            customerName === '' ||
                             tableNumber === '' ||
                             (paymentMethod === 'cash' &&
                                 (paymentAmount === '' ||
