@@ -34,7 +34,7 @@ class OfflineOrderController extends Controller
         );
 
         // Jika dari HP ambil 10 (biar cepat & pas 2 kolom x 5), jika Desktop 24 (pas untuk 8 kolom atau 6 kolom)
-        $defaultPerPage = $isMobile ? 10 : 24;
+        $defaultPerPage = $isMobile ? 10 : 25;
         $perPage = $request->input('perPage', $defaultPerPage);
 
         $items = ItemResource::collection(

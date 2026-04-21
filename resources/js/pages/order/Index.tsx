@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import {
     CheckCircle2,
     ChefHat,
@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 
 import type { Order } from '@/types';
 import { columns } from './columns';
+import OrderFilter from './components/OrderFilter';
 
 interface IndexProps {
     orders: {
@@ -35,6 +36,9 @@ interface IndexProps {
         search?: string;
         status?: string;
         perPage?: string;
+        date_from?: string;
+        date_to?: string;
+        payment_method?: string;
     };
     stats: {
         totalOrderStats: number;
@@ -48,6 +52,7 @@ interface IndexProps {
 }
 
 export default function Index({ orders, filters = {}, stats }: IndexProps) {
+    const { auth } = usePage<any>().props;
     // Gunakan custom hook
     const { search, setSearch, applyFilters } = useFilter({
         routeName: '/orders',
@@ -103,8 +108,13 @@ export default function Index({ orders, filters = {}, stats }: IndexProps) {
         });
     };
 
-    const clearStatusFilters = () => {
-        applyFilters({ status: undefined });
+    const handleReset = () => {
+        applyFilters({
+            status: undefined,
+            date_from: undefined,
+            date_to: undefined,
+            payment_method: undefined,
+        });
     };
 
     const isAllActive = !filters.status;
@@ -126,7 +136,7 @@ export default function Index({ orders, filters = {}, stats }: IndexProps) {
                                 ? 'border-blue-500/50 ring-2 ring-blue-500/20'
                                 : 'border-transparent',
                         )}
-                        onClick={clearStatusFilters}
+                        onClick={handleReset}
                     >
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-blue-600 dark:text-blue-400">
@@ -275,7 +285,7 @@ export default function Index({ orders, filters = {}, stats }: IndexProps) {
                 </div>
 
                 <DataTable
-                    columns={columns()}
+                    columns={columns(auth.user)}
                     data={orders.data}
                     searchPlaceholder="Search order code..."
                     searchValue={search}
@@ -285,11 +295,11 @@ export default function Index({ orders, filters = {}, stats }: IndexProps) {
                     onPerPageChange={handlePerPageChange}
                     toolbar={
                         <>
-                            {/* <OrderFilter
+                            <OrderFilter
                                 initialFilters={filters}
-                                // onFilter={applyFilters}
-                                // onReset={handleReset}
-                            /> */}
+                                onFilter={applyFilters}
+                                onReset={handleReset}
+                            />
                         </>
                     }
                 />

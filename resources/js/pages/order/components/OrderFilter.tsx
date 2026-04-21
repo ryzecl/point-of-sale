@@ -1,10 +1,4 @@
-import {
-    Filter,
-    RotateCcw,
-    Layers,
-    BadgeDollarSign,
-    ClipboardList,
-} from 'lucide-react';
+import { Filter, RotateCcw, Calendar, Tag } from 'lucide-react';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,10 +23,10 @@ import {
 
 interface OrderFilterProps {
     initialFilters: {
-        category_id?: string;
-        min_price?: string;
-        max_price?: string;
-        stock_status?: string;
+        status?: string;
+        date_from?: string;
+        date_to?: string;
+        payment_method?: string;
     };
     onFilter: (filters: any) => void;
     onReset: () => void;
@@ -75,111 +69,26 @@ export default function OrderFilter({
             </SheetTrigger>
             <SheetContent className="flex w-full flex-col p-0 sm:max-w-md">
                 <SheetHeader className="p-6 pb-2">
-                    <SheetTitle className="text-xl">Filter Menu</SheetTitle>
+                    <SheetTitle className="text-xl">Filter Order</SheetTitle>
                     <SheetDescription className="text-sm">
-                        Narrow down your menu items by category, price, or
-                        stock.
+                        Narrow down your orders by status or creation date.
                     </SheetDescription>
                 </SheetHeader>
 
                 <div className="flex-1 overflow-y-auto px-6 py-4">
                     <div className="space-y-8">
-                        {/* Category Filter */}
+                        {/* Status Filter */}
                         <div className="space-y-4">
                             <Label className="flex items-center gap-2 text-sm font-semibold opacity-80">
-                                <Layers className="h-4 w-4" />
-                                Category
+                                <Tag className="h-4 w-4" />
+                                Order Status
                             </Label>
                             <Select
-                                value={filters.category_id || 'all'}
+                                value={filters.status || 'all'}
                                 onValueChange={(val) =>
                                     setFilters({
                                         ...filters,
-                                        category_id:
-                                            val === 'all' ? undefined : val,
-                                    })
-                                }
-                            >
-                                <SelectTrigger className="h-11">
-                                    <SelectValue placeholder="All Categories" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">
-                                        All Categories
-                                    </SelectItem>
-                                    {categories.map((cat) => (
-                                        <SelectItem
-                                            key={cat.id}
-                                            value={cat.id.toString()}
-                                        >
-                                            {cat.cat_name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <Separator className="opacity-50" />
-
-                        {/* Price Range */}
-                        <div className="space-y-4">
-                            <Label className="flex items-center gap-2 text-sm font-semibold opacity-80">
-                                <BadgeDollarSign className="h-4 w-4" />
-                                Price Range
-                            </Label>
-                            <div className="grid grid-cols-2 items-center gap-3">
-                                <div className="space-y-1.5">
-                                    <span className="ml-1 text-[10px] font-medium text-muted-foreground uppercase">
-                                        Min Price
-                                    </span>
-                                    <Input
-                                        type="number"
-                                        placeholder="0"
-                                        className="h-11"
-                                        value={filters.min_price || ''}
-                                        onChange={(e) =>
-                                            setFilters({
-                                                ...filters,
-                                                min_price: e.target.value,
-                                            })
-                                        }
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <span className="ml-1 text-[10px] font-medium text-muted-foreground uppercase">
-                                        Max Price
-                                    </span>
-                                    <Input
-                                        type="number"
-                                        placeholder="Max"
-                                        className="h-11"
-                                        value={filters.max_price || ''}
-                                        onChange={(e) =>
-                                            setFilters({
-                                                ...filters,
-                                                max_price: e.target.value,
-                                            })
-                                        }
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <Separator className="opacity-50" />
-
-                        {/* Stock Status */}
-                        <div className="space-y-4">
-                            <Label className="flex items-center gap-2 text-sm font-semibold opacity-80">
-                                <ClipboardList className="h-4 w-4" />
-                                Stock Status
-                            </Label>
-                            <Select
-                                value={filters.stock_status || 'all'}
-                                onValueChange={(val) =>
-                                    setFilters({
-                                        ...filters,
-                                        stock_status:
-                                            val === 'all' ? undefined : val,
+                                        status: val === 'all' ? undefined : val,
                                     })
                                 }
                             >
@@ -190,14 +99,101 @@ export default function OrderFilter({
                                     <SelectItem value="all">
                                         All Status
                                     </SelectItem>
-                                    <SelectItem value="available">
-                                        Available (Stock &gt; 0)
+                                    <SelectItem value="pending">
+                                        Pending
                                     </SelectItem>
-                                    <SelectItem value="out_of_stock">
-                                        Out of Stock
+                                    <SelectItem value="settlement">
+                                        Settled
+                                    </SelectItem>
+                                    <SelectItem value="cooked">
+                                        Cooked
+                                    </SelectItem>
+                                    <SelectItem value="served">
+                                        Served
+                                    </SelectItem>
+                                    <SelectItem value="cancel">
+                                        Cancelled
+                                    </SelectItem>
+                                    <SelectItem value="expire">
+                                        Expired
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+
+                        {/* Payment_method */}
+                        <div className="space-y-4">
+                            <Label className="flex items-center gap-2 text-sm font-semibold opacity-80">
+                                <Tag className="h-4 w-4" />
+                                Payment Method
+                            </Label>
+                            <Select
+                                value={filters.payment_method || 'all'}
+                                onValueChange={(val) =>
+                                    setFilters({
+                                        ...filters,
+                                        payment_method:
+                                            val === 'all' ? undefined : val,
+                                    })
+                                }
+                            >
+                                <SelectTrigger className="h-11">
+                                    <SelectValue placeholder="All Method" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">
+                                        All Status
+                                    </SelectItem>
+                                    <SelectItem value="cash">Cash</SelectItem>
+                                    <SelectItem value="transfer">
+                                        Transfer
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <Separator className="opacity-50" />
+
+                        {/* Date Range */}
+                        <div className="space-y-4">
+                            <Label className="flex items-center gap-2 text-sm font-semibold opacity-80">
+                                <Calendar className="h-4 w-4" />
+                                Creation Date
+                            </Label>
+                            <div className="grid grid-cols-2 items-center gap-3">
+                                <div className="space-y-1.5">
+                                    <span className="ml-1 text-[10px] font-medium text-muted-foreground uppercase">
+                                        From
+                                    </span>
+                                    <Input
+                                        type="date"
+                                        className="h-11"
+                                        value={filters.date_from || ''}
+                                        onChange={(e) =>
+                                            setFilters({
+                                                ...filters,
+                                                date_from: e.target.value,
+                                            })
+                                        }
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <span className="ml-1 text-[10px] font-medium text-muted-foreground uppercase">
+                                        To
+                                    </span>
+                                    <Input
+                                        type="date"
+                                        className="h-11"
+                                        value={filters.date_to || ''}
+                                        onChange={(e) =>
+                                            setFilters({
+                                                ...filters,
+                                                date_to: e.target.value,
+                                            })
+                                        }
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

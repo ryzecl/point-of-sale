@@ -54,6 +54,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('orders')->controller(OrderController::class)->group(function () {
         Route::get('/', 'index')->name('orders.index');
         Route::get('/{order}', 'show')->name('orders.show');
+        Route::post('/{order}/status', 'updateStatus')->name('orders.updateStatus');
+        Route::post('/{order}/cancel', 'cancel')->name('orders.cancel');
     });
 });
 

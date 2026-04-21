@@ -29,6 +29,24 @@ class OrderService
                 } else {
                     $q->where('status', $status);
                 }
+            })
+
+            // Filter berdasarkan tanggal
+            ->when($filters['date'] ?? null, function ($q, $date) {
+                $q->whereDate('created_at', $date);
+            })
+
+            // Filter berdasarkan range tanggal
+            ->when($filters['date_from'] ?? null, function ($q, $date) {
+                $q->whereDate('created_at', '>=', $date);
+            })
+
+            ->when($filters['date_to'] ?? null, function ($q, $date) {
+                $q->whereDate('created_at', '<=', $date);
+            })
+
+            ->when($filters['payment_method'] ?? null, function ($q, $paymentMethod) {
+                $q->where('payment_method', $paymentMethod);
             });
     }
 
