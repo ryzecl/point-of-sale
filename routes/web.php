@@ -16,21 +16,21 @@ Route::inertia('/', 'welcome', [
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
-    Route::prefix('roles')->controller(RoleController::class)->group(function () {
+    Route::prefix('roles')->middleware('role:superadmin')->controller(RoleController::class)->group(function () {
         Route::get('/', 'index');
         Route::post('/', 'store');
         Route::put('/{role_id}', 'update');
         Route::delete('/{role_id}', 'destroy');
     });
 
-    Route::prefix('categories')->controller(CategoryController::class)->group(function () {
+    Route::prefix('categories')->middleware('role:superadmin,admin')->controller(CategoryController::class)->group(function () {
         Route::get('/', 'index')->name('categories.index');
         Route::post('/', 'store')->name('categories.store');
         Route::put('/{category_id}', 'update')->name('categories.update');
         Route::delete('/{category_id}', 'destroy')->name('categories.destroy');
     });
 
-    Route::prefix('users')->controller(UserController::class)->group(function () {
+    Route::prefix('users')->middleware('role:superadmin,admin')->controller(UserController::class)->group(function () {
         Route::get('/', 'index')->name('users.index');
         Route::post('/', 'store')->name('users.store');
         Route::get('/{user}', 'show')->name('users.show');
@@ -38,7 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{user}', 'destroy')->name('users.destroy');
     });
 
-    Route::prefix('items')->controller(ItemController::class)->group(function () {
+    Route::prefix('items')->middleware('role:superadmin,admin')->controller(ItemController::class)->group(function () {
         Route::get('/', 'index')->name('items.index');
         Route::post('/', 'store')->name('items.store');
         Route::get('/{item}', 'show')->name('items.show');
@@ -46,7 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{item}', 'destroy')->name('items.destroy');
     });
 
-    Route::prefix('cashier')->controller(OfflineOrderController::class)->group(function () {
+    Route::prefix('cashier')->middleware('role:superadmin,admin,cashier')->controller(OfflineOrderController::class)->group(function () {
         Route::get('/', 'index')->name('cashier.index');
         Route::post('/', 'store')->name('cashier.store');
     });

@@ -36,4 +36,25 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+
+    /**
+     * Check if a user has a specific role or one of many roles.
+     *
+     * @param string|array $roles
+     * @return bool
+     */
+    public function hasRole(string|array $roles): bool
+    {
+        if (!$this->relationLoaded('role')) {
+            $this->load('role');
+        }
+
+        $userRole = $this->role->role_name;
+
+        if (is_array($roles)) {
+            return in_array($userRole, $roles);
+        }
+
+        return $userRole === $roles;
+    }
 }
