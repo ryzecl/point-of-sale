@@ -8,12 +8,20 @@ export function useDashboardChart() {
     const [date, setDate] = useState(
         () => new Date().toISOString().split('T')[0],
     );
+    const [dateRange, setDateRange] = useState<{ from?: string; to?: string }>(
+        {},
+    );
 
     const fetchData = useCallback(async () => {
         setLoading(true);
 
         try {
-            const params = new URLSearchParams({ period, date });
+            const params = new URLSearchParams({
+                period,
+                date,
+                ...(dateRange.from && { from: dateRange.from }),
+                ...(dateRange.to && { to: dateRange.to }),
+            });
             const res = await fetch(`/dashboard/chart-data?${params}`);
             const json: ChartDataResponse = await res.json();
             setData(json);
@@ -22,7 +30,7 @@ export function useDashboardChart() {
         } finally {
             setLoading(false);
         }
-    }, [period, date]);
+    }, [period, date, dateRange]);
 
     useEffect(() => {
         fetchData();
@@ -35,6 +43,8 @@ export function useDashboardChart() {
         setPeriod,
         date,
         setDate,
+        dateRange,
+        setDateRange,
         refetch: fetchData,
     };
 }

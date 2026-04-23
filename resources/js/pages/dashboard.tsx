@@ -3,12 +3,14 @@ import {
     AlertTriangle,
     Banknote,
     Calculator,
+    Calendar,
     ShoppingCart,
     TrendingUp,
     XCircle,
 } from 'lucide-react';
 import { PaymentDistributionChart } from '@/components/charts/payment-distribution-chart';
 import { RevenueTrendChart } from '@/components/charts/revenue-trend-chart';
+import { TopItemsList } from '@/components/charts/top-items-list';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDashboardChart } from '@/hooks/use-dashboard-chart';
@@ -143,6 +145,42 @@ export default function Dashboard({ stats }: DashboardProps) {
                     ))}
                 </div>
 
+                {/* Date Filter Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-4 bg-card/50 p-4 rounded-xl border border-border/50 backdrop-blur-sm">
+                    <div className="flex items-center gap-2">
+                        <Calendar className="size-5 text-muted-foreground" />
+                        <h3 className="font-semibold">Filter Laporan Kustom</h3>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs text-muted-foreground font-medium">Dari:</label>
+                            <input
+                                type="date"
+                                className="bg-background border rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 dark:invert-[0.1]"
+                                value={chartHook.dateRange.from || ''}
+                                onChange={(e) => chartHook.setDateRange(prev => ({ ...prev, from: e.target.value }))}
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs text-muted-foreground font-medium">Sampai:</label>
+                            <input
+                                type="date"
+                                className="bg-background border rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 dark:invert-[0.1]"
+                                value={chartHook.dateRange.to || ''}
+                                onChange={(e) => chartHook.setDateRange(prev => ({ ...prev, to: e.target.value }))}
+                            />
+                        </div>
+                        {(chartHook.dateRange.from || chartHook.dateRange.to) && (
+                            <button
+                                onClick={() => chartHook.setDateRange({})}
+                                className="text-xs text-red-600 font-medium hover:underline px-2"
+                            >
+                                Reset
+                            </button>
+                        )}
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
                     <RevenueTrendChart
                         data={chartHook.data?.trendData ?? []}
@@ -152,6 +190,10 @@ export default function Dashboard({ stats }: DashboardProps) {
                     />
                     <PaymentDistributionChart
                         data={chartHook.data?.paymentDistribution ?? []}
+                        loading={chartHook.loading}
+                    />
+                    <TopItemsList
+                        items={chartHook.data?.topItems ?? []}
                         loading={chartHook.loading}
                     />
                 </div>

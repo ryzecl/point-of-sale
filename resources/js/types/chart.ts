@@ -23,9 +23,17 @@ export interface ChartMeta {
     rangeEnd: string;
 }
 
+export interface TopItem {
+    name: string;
+    img: string | null;
+    total_qty: number;
+    total_revenue: number;
+}
+
 export interface ChartDataResponse {
     trendData: TrendDataPoint[];
     paymentDistribution: PaymentDistItem[];
+    topItems: TopItem[];
     summary: ChartSummary;
     meta: ChartMeta;
 }

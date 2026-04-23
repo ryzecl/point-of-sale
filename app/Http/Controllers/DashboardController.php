@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use App\Models\Order;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-
-use Illuminate\Http\JsonResponse;
 
 class DashboardController extends Controller
 {
@@ -33,15 +33,24 @@ class DashboardController extends Controller
     public function chartData(Request $request): JsonResponse
     {
         $period = $request->input('period', 'daily');
+        $fromDate = $request->input('from');
+        $toDate = $request->input('to');
         $date = Carbon::parse($request->input('date', today()));
 
         // Tentukan range waktu
-        [$start, $end] = match ($period) {
-            'daily'   => [$date->copy()->startOfDay(), $date->copy()->endOfDay()],
-            'weekly'  => [$date->copy()->startOfWeek(), $date->copy()->endOfWeek()],
-            'monthly' => [$date->copy()->startOfMonth(), $date->copy()->endOfMonth()],
-            'yearly'  => [$date->copy()->startOfYear(), $date->copy()->endOfYear()],
-        };
+        if ($fromDate && $toDate) {
+            $start = Carbon::parse($fromDate)->startOfDay();
+            $end = Carbon::parse($toDate)->endOfDay();
+            $period = 'custom';
+        } else {
+            [$start, $end] = match ($period) {
+                'daily'   => [$date->copy()->startOfDay(), $date->copy()->endOfDay()],
+                'weekly'  => [$date->copy()->startOfWeek(), $date->copy()->endOfWeek()],
+                'monthly' => [$date->copy()->startOfMonth(), $date->copy()->endOfMonth()],
+                'yearly'  => [$date->copy()->startOfYear(), $date->copy()->endOfYear()],
+                default   => [$date->copy()->startOfDay(), $date->copy()->endOfDay()],
+            };
+        }
 
         // Query dasar — hanya transaksi yang sudah dibayar (atau status tertentu)
         $baseQuery = Order::whereBetween('created_at', [$start, $end])
@@ -53,6 +62,7 @@ class DashboardController extends Controller
             'weekly'  => "DATE(created_at) as time_key",
             'monthly' => "DAY(created_at) as time_key",
             'yearly'  => "MONTH(created_at) as time_key",
+            'custom'  => "DATE(created_at) as time_key",
         };
 
         $trendRaw = (clone $baseQuery)
@@ -76,6 +86,24 @@ class DashboardController extends Controller
                 'count'  => (int) $item->count,
             ]);
 
+        // === TOP SELLING ITEMS ===
+        $topItems = \App\Models\OrderItem::query()
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->join('items', 'items.id', '=', 'order_items.item_id')
+            ->whereBetween('orders.created_at', [$start, $end])
+            ->whereNotIn('orders.status', ['cancel', 'expire'])
+            ->selectRaw('items.name, items.img, SUM(order_items.quantity) as total_qty, SUM(order_items.total_price) as total_revenue')
+            ->groupBy('items.id', 'items.name', 'items.img')
+            ->orderByDesc('total_qty')
+            ->limit(5)
+            ->get()
+            ->map(fn($item) => [
+                'name'          => $item->name,
+                'img'           => $item->img ? asset('storage/' . $item->img) : null,
+                'total_qty'     => (int) $item->total_qty,
+                'total_revenue' => (float) $item->total_revenue,
+            ]);
+
         // === SUMMARY ===
         $summary = [
             'totalRevenue'  => (clone $baseQuery)->sum('grand_total'),
@@ -86,10 +114,13 @@ class DashboardController extends Controller
         return response()->json([
             'trendData'           => $trendData,
             'paymentDistribution' => $paymentDistribution,
+            'topItems'            => $topItems,
             'summary'             => $summary,
             'meta' => [
                 'period'     => $period,
                 'date'       => $date->toDateString(),
+                'from'       => $start->toDateString(),
+                'to'         => $end->toDateString(),
                 'rangeStart' => $start->toDateTimeString(),
                 'rangeEnd'   => $end->toDateTimeString(),
             ],
@@ -153,9 +184,23 @@ class DashboardController extends Controller
                     ];
                 }
             })(),
+
+            'custom' => (function () use (&$slots, $data, $start, $end) {
+                $periodRange = CarbonPeriod::create($start, $end);
+                // Limit to max 31 days to avoid chart overflow if range too big
+                $limitedRange = $periodRange->take(31);
+                foreach ($limitedRange as $date) {
+                    $key = $date->toDateString();
+                    $row = $data->get($key);
+                    $slots[] = [
+                        'label'   => $date->format('d M'),
+                        'revenue' => (float) ($row->revenue ?? 0),
+                        'orders'  => (int) ($row->orders ?? 0),
+                    ];
+                }
+            })(),
         };
 
         return $slots;
     }
 }
-
