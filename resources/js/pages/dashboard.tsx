@@ -7,9 +7,11 @@ import {
     TrendingUp,
     XCircle,
 } from 'lucide-react';
+import { PaymentDistributionChart } from '@/components/charts/payment-distribution-chart';
+import { RevenueTrendChart } from '@/components/charts/revenue-trend-chart';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { useDashboardChart } from '@/hooks/use-dashboard-chart';
 import { dashboard } from '@/routes';
 
 interface Stats {
@@ -26,6 +28,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ stats }: DashboardProps) {
+    const chartHook = useDashboardChart();
     console.log('Dashboard Stats:', stats);
 
     const formatCurrency = (value: number) => {
@@ -139,13 +142,24 @@ export default function Dashboard({ stats }: DashboardProps) {
                         </Card>
                     ))}
                 </div>
-                <div className="relative min-h-screen flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+                    <RevenueTrendChart
+                        data={chartHook.data?.trendData ?? []}
+                        period={chartHook.period}
+                        onPeriodChange={chartHook.setPeriod}
+                        loading={chartHook.loading}
+                    />
+                    <PaymentDistributionChart
+                        data={chartHook.data?.paymentDistribution ?? []}
+                        loading={chartHook.loading}
+                    />
                 </div>
             </div>
         </>
     );
 }
+
 
 Dashboard.layout = {
     breadcrumbs: [

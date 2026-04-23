@@ -16,6 +16,8 @@ Route::inertia('/', 'welcome', [
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('dashboard/chart-data', [DashboardController::class, 'chartData'])->name('dashboard.chartData');
+
 
     Route::prefix('roles')->middleware('role:superadmin,admin')->controller(RoleController::class)->group(function () {
         Route::get('/', 'index');
