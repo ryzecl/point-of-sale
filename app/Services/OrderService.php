@@ -19,7 +19,10 @@ class OrderService
         return $query
             //Filter berdasarkan Cari
             ->when($filters['search'] ?? null, function ($q, $search) {
-                $q->where('order_code', 'like', "%{$search}%");
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('customer_name', 'like', "%{$search}%")
+                        ->orWhere('order_code', 'like', "%{$search}%");
+                });
             })
 
             //Filter berdasarkan status

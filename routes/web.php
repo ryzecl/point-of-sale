@@ -41,7 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{user}', 'destroy')->name('users.destroy')->middleware('role:superadmin');
     });
 
-    Route::prefix('items')->middleware('role:superadmin,admin')->controller(ItemController::class)->group(function () {
+    Route::prefix('items')->middleware('role:superadmin,admin,cashier,chef')->controller(ItemController::class)->group(function () {
         Route::get('/', 'index')->name('items.index');
         Route::post('/', 'store')->name('items.store');
         Route::get('/{item}', 'show')->name('items.show');

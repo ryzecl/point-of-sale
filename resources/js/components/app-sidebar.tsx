@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
     ClipboardPen,
@@ -31,36 +31,43 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+        roles: ['superadmin', 'admin', 'cashier', 'chef', 'internship'],
     },
     {
         title: 'Cashier',
         href: '/cashier',
         icon: ShoppingCart,
+        roles: ['superadmin', 'admin', 'cashier'],
     },
     {
         title: 'Order',
         href: '/orders',
         icon: ClipboardPen,
+        roles: ['superadmin', 'admin', 'cashier', 'chef'],
     },
     {
         title: 'Menu',
         href: '/items',
         icon: NotepadText,
+        roles: ['superadmin', 'admin', 'cashier', 'chef'],
     },
     {
         title: 'Category',
         href: '/categories',
         icon: Tags,
+        roles: ['superadmin', 'admin'],
     },
     {
         title: 'Role',
         href: '/roles',
         icon: ShieldUser,
+        roles: ['superadmin', 'admin'],
     },
     {
         title: 'User',
         href: '/users',
         icon: Users,
+        roles: ['superadmin', 'admin'],
     },
 ];
 
@@ -78,6 +85,17 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<any>().props;
+    const userRole = auth.user.role.role_name;
+
+    const filteredNavItems = mainNavItems.filter((item) => {
+        if (!item.roles) {
+            return true;
+        }
+
+        return item.roles.includes(userRole);
+    });
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -93,7 +111,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={filteredNavItems} />
             </SidebarContent>
 
             <SidebarFooter>
