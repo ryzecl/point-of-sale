@@ -9,6 +9,7 @@ import {
     Tags,
     ShieldUser,
     Users,
+    ChartLine,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -68,6 +69,12 @@ const mainNavItems: NavItem[] = [
         href: '/users',
         icon: Users,
         roles: ['superadmin', 'admin'],
+    },
+    {
+        title: 'Sales Report',
+        href: '/reports/sales',
+        icon: ChartLine,
+        roles: ['superadmin', 'admin', 'cashier'],
     },
 ];
 

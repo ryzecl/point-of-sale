@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/react';
 import { forwardRef } from 'react';
 import { formatCurrency } from '@/lib/format-utils';
 import type { OrderSuccessData } from '@/types';
@@ -13,11 +14,14 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
     (
         {
             data,
-            storeName = 'RYZE POS',
+            storeName,
             storeAddress = 'Jl. Digital No. 101, Jakarta Pusat',
         },
         ref,
     ) => {
+        const { name } = usePage<{ name?: string }>().props;
+        const finalStoreName = storeName || name || 'Ryzecl POS';
+
         const date = new Date(data.createdAt);
         const formattedDate = date.toLocaleDateString('id-ID', {
             day: '2-digit',
@@ -33,7 +37,7 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
             <div ref={ref} className="receipt-container">
                 {/* Header Toko */}
                 <div className="receipt-header">
-                    <h2 className="receipt-store-name">{storeName}</h2>
+                    <h2 className="receipt-store-name">{finalStoreName}</h2>
                     <p className="receipt-store-address">{storeAddress}</p>
                     <div className="receipt-divider-double" />
                 </div>
@@ -129,9 +133,7 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
                             </div>
                             <div className="receipt-row">
                                 <span>Change</span>
-                                <span>
-                                    {formatCurrency(data.changeAmount)}
-                                </span>
+                                <span>{formatCurrency(data.changeAmount)}</span>
                             </div>
                         </>
                     )}
@@ -152,7 +154,9 @@ const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
                 <div className="receipt-divider-double" />
                 <div className="receipt-footer">
                     <p>Thank you for your visit!</p>
-                    <p className="receipt-powered">Powered by RYZE POS</p>
+                    <p className="receipt-powered">
+                        Powered by {finalStoreName}
+                    </p>
                 </div>
             </div>
         );

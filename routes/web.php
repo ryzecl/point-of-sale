@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\OfflineOrderController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -60,6 +61,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{order}/receipt', 'receipt')->name('orders.receipt');
         Route::post('/{order}/status', 'updateStatus')->name('orders.updateStatus');
         Route::post('/{order}/cancel', 'cancel')->name('orders.cancel');
+    });
+
+    Route::prefix('reports')->controller(ReportController::class)->group(function () {
+        Route::get('/sales', 'index')->name('reports.sales');
+        Route::get('/export-sales', 'export')->name('reports.sales.export');
     });
 });
 
