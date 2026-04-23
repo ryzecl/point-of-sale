@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { AlertTriangle, Package, PackageCheck, PackageX } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,7 +50,9 @@ export default function Index({
     stats,
     filters = {},
 }: IndexProps) {
-    const itemColumns = columns(categories.data);
+    const { auth } = usePage<any>().props;
+    const isSuperAdmin = auth.user.role.role_name === 'superadmin';
+    const itemColumns = columns(categories.data, isSuperAdmin);
 
     // Gunakan custom hook
     const { search, setSearch, handleReset, applyFilters } = useFilter({

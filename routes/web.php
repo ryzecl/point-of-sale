@@ -30,7 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', 'index')->name('categories.index');
         Route::post('/', 'store')->name('categories.store');
         Route::put('/{category_id}', 'update')->name('categories.update');
-        Route::delete('/{category_id}', 'destroy')->name('categories.destroy');
+        Route::delete('/{category_id}', 'destroy')->name('categories.destroy')->middleware('role:superadmin');
     });
 
     Route::prefix('users')->middleware('role:superadmin,admin')->controller(UserController::class)->group(function () {
@@ -38,7 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', 'store')->name('users.store');
         Route::get('/{user}', 'show')->name('users.show');
         Route::put('/{user}', 'update')->name('users.update');
-        Route::delete('/{user}', 'destroy')->name('users.destroy');
+        Route::delete('/{user}', 'destroy')->name('users.destroy')->middleware('role:superadmin');
     });
 
     Route::prefix('items')->middleware('role:superadmin,admin')->controller(ItemController::class)->group(function () {
@@ -46,7 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', 'store')->name('items.store');
         Route::get('/{item}', 'show')->name('items.show');
         Route::put('/{item}', 'update')->name('items.update');
-        Route::delete('/{item}', 'destroy')->name('items.destroy');
+        Route::delete('/{item}', 'destroy')->name('items.destroy')->middleware('role:superadmin');
     });
 
     Route::prefix('cashier')->middleware('role:superadmin,admin,cashier')->controller(OfflineOrderController::class)->group(function () {

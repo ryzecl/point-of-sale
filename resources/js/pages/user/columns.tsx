@@ -17,7 +17,10 @@ import { Button } from '@/components/ui/button';
 import type { User, Role } from '@/types';
 import FormUser from './components/FormUser';
 
-export const columns = (roles: Role[]): ColumnDef<User>[] => [
+export const columns = (
+    roles: Role[],
+    isSuperAdmin: boolean,
+): ColumnDef<User>[] => [
     {
         id: 'No',
         header: 'No',
@@ -64,40 +67,44 @@ export const columns = (roles: Role[]): ColumnDef<User>[] => [
                         <Eye className="h-4 w-4" />
                     </Button>
                     <FormUser user={user} roles={roles} />
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="sm:max-w-sm">
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                    Are you sure?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Do you really want to delete user{' '}
-                                    <b>{user.name}</b>? This action cannot be
-                                    undone.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                    onClick={() =>
-                                        router.delete(`/users/${user.id}`)
-                                    }
-                                    className="bg-destructive text-white hover:bg-destructive/90"
+                    {isSuperAdmin && (
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
                                 >
-                                    Delete
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="sm:max-w-sm">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                        Are you sure?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Do you really want to delete user{' '}
+                                        <b>{user.name}</b>? This action cannot
+                                        be undone.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                        Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={() =>
+                                            router.delete(`/users/${user.id}`)
+                                        }
+                                        className="bg-destructive text-white hover:bg-destructive/90"
+                                    >
+                                        Delete
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    )}
                 </div>
             );
         },

@@ -130,7 +130,7 @@ export default function Profile({
                 </Form>
             </div>
 
-            <DeleteUser />
+            {auth.user.role?.role_name === 'superadmin' && <DeleteUser />}
         </>
     );
 }

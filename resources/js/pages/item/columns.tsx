@@ -19,7 +19,10 @@ import { formatCurrency } from '@/lib/format-utils';
 import type { Item, Category } from '@/types';
 import FormItem from './components/FormItem';
 
-export const columns = (categories: Category[]): ColumnDef<Item>[] => [
+export const columns = (
+    categories: Category[],
+    isSuperAdmin: boolean,
+): ColumnDef<Item>[] => [
     {
         id: 'No',
         header: 'No',
@@ -166,40 +169,44 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                         <Eye className="h-4 w-4" />
                     </Button>
                     <FormItem item={item} categories={categories} />
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="sm:max-w-sm">
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                    Are you sure?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Do you really want to delete item{' '}
-                                    <b>{item.name}</b>? This action cannot be
-                                    undone.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                    onClick={() =>
-                                        router.delete(`/items/${item.id}`)
-                                    }
-                                    className="bg-destructive text-white hover:bg-destructive/90"
+                    {isSuperAdmin && (
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
                                 >
-                                    Delete
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="sm:max-w-sm">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                        Are you sure?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Do you really want to delete item{' '}
+                                        <b>{item.name}</b>? This action cannot
+                                        be undone.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                        Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={() =>
+                                            router.delete(`/items/${item.id}`)
+                                        }
+                                        className="bg-destructive text-white hover:bg-destructive/90"
+                                    >
+                                        Delete
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    )}
                 </div>
             );
         },

@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import type { Category } from '@/types';
 import FormCategory from './components/FormCategory';
 
-export const columns: ColumnDef<Category>[] = [
+export const columns = (isSuperAdmin: boolean): ColumnDef<Category>[] => [
     {
         id: 'No',
         header: 'No',
@@ -52,43 +52,47 @@ export const columns: ColumnDef<Category>[] = [
             return (
                 <div className="flex items-center justify-center gap-1">
                     <FormCategory category={category} />
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="sm:max-w-sm">
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                    Tunggu Dulu!
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Apakah kamu yakin ingin menghapus role{' '}
-                                    <b>{category.cat_name}</b>? Data yang
-                                    dihapus tidak dapat dikembalikan.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                {/* 3. Panggil router.delete di tombol Action */}
-                                <AlertDialogAction
-                                    onClick={() =>
-                                        router.delete(
-                                            `/categories/${category.id}`,
-                                        )
-                                    }
-                                    className="bg-destructive text-white hover:bg-destructive/90"
+                    {isSuperAdmin && (
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
                                 >
-                                    Ya, Hapus
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="sm:max-w-sm">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                        Tunggu Dulu!
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Apakah kamu yakin ingin menghapus role{' '}
+                                        <b>{category.cat_name}</b>? Data yang
+                                        dihapus tidak dapat dikembalikan.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                        Cancel
+                                    </AlertDialogCancel>
+                                    {/* 3. Panggil router.delete di tombol Action */}
+                                    <AlertDialogAction
+                                        onClick={() =>
+                                            router.delete(
+                                                `/categories/${category.id}`,
+                                            )
+                                        }
+                                        className="bg-destructive text-white hover:bg-destructive/90"
+                                    >
+                                        Ya, Hapus
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    )}
                 </div>
             );
         },

@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import React from 'react';
 import { DataTable } from '@/components/ui/data-table';
 import type { Category } from '@/types';
@@ -10,12 +10,15 @@ interface IndexProps {
 }
 
 export default function Index({ categories }: IndexProps) {
+    const { auth } = usePage<any>().props;
+    const isSuperAdmin = auth.user.role.role_name === 'superadmin';
+
     return (
         <>
             <Head title="Category Management" />
             <div className="container mx-auto">
                 <DataTable
-                    columns={columns}
+                    columns={columns(isSuperAdmin)}
                     data={categories.data}
                     searchPlaceholder="Search categories..."
                     toolbar={<FormCategory />}
