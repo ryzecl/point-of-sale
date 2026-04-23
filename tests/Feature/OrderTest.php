@@ -50,6 +50,7 @@ class OrderTest extends TestCase
             'tableNumber' => 5,
             'paymentMethod' => 'cash',
             'paymentAmount' => 30000, // 20k + tax 2k = 22k. 30k is enough.
+            'customerName' => 'Test Customer',
             'note' => 'Testing cash'
         ]);
 
@@ -84,6 +85,7 @@ class OrderTest extends TestCase
             'tableNumber' => 10,
             'paymentMethod' => 'transfer',
             'paymentAmount' => 11000, // Sama dengan grand total
+            'customerName' => 'Test Customer',
             'note' => 'Testing transfer'
         ]);
 
@@ -110,6 +112,7 @@ class OrderTest extends TestCase
             'tableNumber' => 12,
             'paymentMethod' => 'cash',
             'paymentAmount' => 1000000,
+            'customerName' => 'Test Customer',
         ]);
 
         // Harusnya error dan balik ke halaman sebelumnya dengan pesan error
