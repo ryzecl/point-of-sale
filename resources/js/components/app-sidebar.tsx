@@ -1,13 +1,13 @@
 import { Link } from '@inertiajs/react';
 import {
     BookOpen,
-    Calculator,
+    ClipboardPen,
     FolderGit2,
     LayoutGrid,
-    LayoutList,
+    NotepadText,
     ShoppingCart,
     Tags,
-    UserCog,
+    ShieldUser,
     Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -35,17 +35,17 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Cashier',
         href: '/cashier',
-        icon: Calculator,
+        icon: ShoppingCart,
     },
     {
         title: 'Order',
         href: '/orders',
-        icon: ShoppingCart,
+        icon: ClipboardPen,
     },
     {
         title: 'Menu',
         href: '/items',
-        icon: LayoutList,
+        icon: NotepadText,
     },
     {
         title: 'Category',
@@ -55,7 +55,7 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Role',
         href: '/roles',
-        icon: UserCog,
+        icon: ShieldUser,
     },
     {
         title: 'User',

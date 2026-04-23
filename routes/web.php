@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\OfflineOrderController;
 use App\Http\Controllers\OrderController;
@@ -14,13 +15,13 @@ Route::inertia('/', 'welcome', [
 ])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::prefix('roles')->middleware('role:superadmin')->controller(RoleController::class)->group(function () {
+    Route::prefix('roles')->middleware('role:superadmin,admin')->controller(RoleController::class)->group(function () {
         Route::get('/', 'index');
         Route::post('/', 'store');
         Route::put('/{role_id}', 'update');
-        Route::delete('/{role_id}', 'destroy');
+        Route::delete('/{role_id}', 'destroy')->middleware('role:superadmin');
     });
 
     Route::prefix('categories')->middleware('role:superadmin,admin')->controller(CategoryController::class)->group(function () {
