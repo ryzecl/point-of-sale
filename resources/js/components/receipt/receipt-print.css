@@ -1,0 +1,161 @@
+/* ═══════════════════════════════════════════
+   RECEIPT — On-screen preview (inside dialog)
+   ═══════════════════════════════════════════ */
+.receipt-container {
+    width: 280px;              /* preview width ≈ 80mm thermal */
+    margin: 0 auto;
+    padding: 16px 12px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #000;
+    background: #fff;
+}
+
+.receipt-header {
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.receipt-store-name {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.receipt-store-address {
+    font-size: 9px;
+    margin: 2px 0 0;
+    color: #555;
+}
+
+/* Dividers */
+.receipt-divider-double {
+    border-top: 2px double #000;
+    margin: 8px 0;
+}
+.receipt-divider-dashed {
+    border-top: 1px dashed #999;
+    margin: 6px 0;
+}
+.receipt-divider-single {
+    border-top: 1px solid #000;
+    margin: 4px 0;
+}
+
+/* Row: key-value pair */
+.receipt-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.receipt-row span:last-child {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* Items */
+.receipt-item {
+    margin-bottom: 4px;
+}
+
+.receipt-item-name {
+    font-weight: 700;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.receipt-item-detail {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 8px;
+    font-size: 10px;
+}
+
+/* Grand total */
+.receipt-grand-total {
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.receipt-uppercase {
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+/* Note */
+.receipt-note-label {
+    font-weight: 700;
+    font-size: 10px;
+}
+.receipt-note p {
+    font-size: 10px;
+    font-style: italic;
+    margin: 2px 0 0;
+    word-break: break-word;
+}
+
+/* Footer */
+.receipt-footer {
+    text-align: center;
+    margin-top: 4px;
+    font-size: 10px;
+}
+.receipt-powered {
+    font-size: 8px;
+    color: #999;
+    margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════════
+   PRINT STYLES — Thermal Paper
+   ═══════════════════════════════════════════ */
+@media print {
+    /* Hide everything except receipt */
+    body * {
+        visibility: hidden !important;
+    }
+    .receipt-container,
+    .receipt-container * {
+        visibility: visible !important;
+    }
+    .receipt-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 72mm;           /* 80mm paper - margins */
+        padding: 2mm;
+        margin: 0;
+        font-size: 10px;
+        background: #fff !important;
+        color: #000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    @page {
+        size: 80mm auto;       /* width 80mm, height auto */
+        margin: 0;
+    }
+
+    .receipt-store-address { color: #000 !important; }
+    .receipt-powered { color: #666 !important; }
+}
+
+/* ═══════════════════════════════════════════
+   58mm variant (override via class)
+   ═══════════════════════════════════════════ */
+@media print {
+    .receipt-container.receipt-58mm {
+        width: 48mm;
+        font-size: 9px;
+    }
+    .receipt-container.receipt-58mm .receipt-store-name {
+        font-size: 12px;
+    }
+    .receipt-container.receipt-58mm .receipt-grand-total {
+        font-size: 12px;
+    }
+}

@@ -68,4 +68,31 @@ class OrderController extends Controller
 
         return back()->with('success', 'Order cancelled successfully');
     }
+
+    public function receipt(Order $order)
+    {
+        $order->load(['user', 'orderItems.item']);
+
+        return response()->json([
+            'orderCode'     => $order->order_code,
+            'grandTotal'    => (float) $order->grand_total,
+            'subtotal'      => (float) $order->subtotal,
+            'tax'           => (float) $order->tax,
+            'discount'      => (float) $order->discount,
+            'customerName'  => $order->customer_name,
+            'cashierName'   => $order->user->name ?? 'System',
+            'tableNumber'   => $order->table_number,
+            'paymentMethod' => $order->payment_method,
+            'paymentAmount' => (float) $order->payment_amount,
+            'changeAmount'  => (float) $order->change_amount,
+            'note'          => $order->note,
+            'createdAt'     => $order->created_at->toISOString(),
+            'items'         => $order->orderItems->map(fn($oi) => [
+                'name'     => $oi->item->name ?? 'Unknown',
+                'quantity' => $oi->quantity,
+                'price'    => (float) $oi->price,
+                'total'    => (float) $oi->total_price,
+            ])->toArray(),
+        ]);
+    }
 }

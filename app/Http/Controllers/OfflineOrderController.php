@@ -63,16 +63,50 @@ class OfflineOrderController extends Controller
             // If cash method: redirect as usual
             if ($validated['paymentMethod'] === 'cash') {
                 return back()->with('orderSuccess', [
-                    'orderCode'  => $order->order_code,
-                    'grandTotal' => $order->grand_total,
+                    'orderCode'     => $order->order_code,
+                    'grandTotal'    => $order->grand_total,
+                    'subtotal'      => $order->subtotal,
+                    'tax'           => $order->tax,
+                    'discount'      => $order->discount,
+                    'customerName'  => $order->customer_name,
+                    'cashierName'   => Auth::user()->name,
+                    'tableNumber'   => $order->table_number,
+                    'paymentMethod' => $order->payment_method,
+                    'paymentAmount' => $order->payment_amount,
+                    'changeAmount'  => $order->change_amount,
+                    'note'          => $order->note,
+                    'createdAt'     => $order->created_at->toISOString(),
+                    'items'         => $order->orderItems->map(fn($oi) => [
+                        'name'     => $oi->item->name ?? 'Unknown',
+                        'quantity' => $oi->quantity,
+                        'price'    => $oi->price,
+                        'total'    => $oi->total_price,
+                    ])->toArray(),
                     'message'    => "Order #{$order->order_code} processed successfully!",
                 ]);
             }
 
             // If transfer method: return snap token to frontend
             return back()->with('orderSuccess', [
-                'orderCode'  => $order->order_code,
-                'grandTotal' => $order->grand_total,
+                'orderCode'     => $order->order_code,
+                'grandTotal'    => $order->grand_total,
+                'subtotal'      => $order->subtotal,
+                'tax'           => $order->tax,
+                'discount'      => $order->discount,
+                'customerName'  => $order->customer_name,
+                'cashierName'   => Auth::user()->name,
+                'tableNumber'   => $order->table_number,
+                'paymentMethod' => $order->payment_method,
+                'paymentAmount' => $order->payment_amount,
+                'changeAmount'  => $order->change_amount,
+                'note'          => $order->note,
+                'createdAt'     => $order->created_at->toISOString(),
+                'items'         => $order->orderItems->map(fn($oi) => [
+                    'name'     => $oi->item->name ?? 'Unknown',
+                    'quantity' => $oi->quantity,
+                    'price'    => $oi->price,
+                    'total'    => $oi->total_price,
+                ])->toArray(),
                 'snapToken'  => $snapToken,
                 'message'    => "Please complete the payment.",
             ]);

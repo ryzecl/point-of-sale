@@ -271,8 +271,7 @@ export default function Index({
                 <SuccessDialog
                     open={isSuccessOpen}
                     onClose={handleSuccessClose}
-                    orderCode={successData.orderCode}
-                    grandTotal={successData.grandTotal}
+                    data={successData}
                 />
             )}
 

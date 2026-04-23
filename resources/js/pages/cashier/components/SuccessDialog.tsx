@@ -1,5 +1,8 @@
 import { CheckCircle, Printer, X } from 'lucide-react';
+import { useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
 
+import Receipt from '@/components/receipt/Receipt';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -9,29 +12,29 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { formatCurrency } from '@/lib/format-utils';
+import type { OrderSuccessData } from '@/types';
 
 interface SuccessDialogProps {
     open: boolean;
     onClose: () => void;
-    orderCode: string;
-    grandTotal: number;
+    data: OrderSuccessData;
 }
 
 export default function SuccessDialog({
     open,
     onClose,
-    orderCode,
-    grandTotal,
+    data,
 }: SuccessDialogProps) {
-    const handlePrintReceipt = () => {
-        // TODO: Implementasi cetak struk (bisa buka tab baru ke /orders/{code}/receipt)
-        window.open(`/orders/${orderCode}/receipt`, '_blank');
-    };
+    const receiptRef = useRef<HTMLDivElement>(null);
+
+    const handlePrint = useReactToPrint({
+        contentRef: receiptRef,
+        documentTitle: `Receipt-${data.orderCode}`,
+    });
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="max-h-[95vh] overflow-y-auto sm:max-w-md">
                 <DialogHeader className="items-center text-center">
                     <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10">
                         <CheckCircle className="h-12 w-12 text-green-500" />
@@ -44,36 +47,25 @@ export default function SuccessDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-4 py-4">
-                    <div className="flex flex-col items-center justify-center space-y-1 rounded-xl bg-muted/50 py-6">
-                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                            Order Code
-                        </span>
-                        <span className="text-2xl font-black tracking-widest">
-                            #{orderCode}
-                        </span>
-                    </div>
-
-                    <div className="flex justify-between rounded-lg bg-muted/30 p-3 text-sm">
-                        <span className="text-muted-foreground">Total Payment</span>
-                        <span className="font-bold">
-                            {formatCurrency(grandTotal)}
-                        </span>
-                    </div>
+                {/* Receipt Preview (scrollable) */}
+                <div className="max-h-[350px] overflow-y-auto rounded-xl border-2 border-muted bg-white p-2 shadow-inner">
+                    <Receipt ref={receiptRef} data={data} />
                 </div>
 
-                <DialogFooter className="flex-col gap-2 sm:flex-col">
+                <DialogFooter className="mt-2 flex-col gap-2 sm:flex-col">
                     <Button
-                        onClick={handlePrintReceipt}
-                        className="w-full font-bold"
+                        onClick={() => handlePrint()}
+                        className="w-full gap-2 rounded-xl font-bold"
                         variant="outline"
+                        size="lg"
                     >
-                        <Printer className="mr-2 size-4" />
+                        <Printer className="size-4" />
                         Print Receipt
                     </Button>
                     <Button
-                        className="w-full gap-2 rounded-xl"
+                        className="w-full gap-2 rounded-xl font-bold"
                         onClick={onClose}
+                        size="lg"
                     >
                         <X className="h-4 w-4" />
                         Finish

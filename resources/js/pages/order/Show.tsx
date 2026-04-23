@@ -8,8 +8,12 @@ import {
     User,
     UserCircle,
     Utensils,
+    Loader2,
 } from 'lucide-react';
+import { useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
 
+import Receipt from '@/components/receipt/Receipt';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,6 +33,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useReceiptData } from '@/hooks/use-receipt-data';
 import { formatDateTime } from '@/lib/date-utils';
 import { formatCurrency } from '@/lib/format-utils';
 import { cn } from '@/lib/utils';
@@ -39,6 +44,24 @@ interface ShowProps {
 }
 
 export default function Show({ order: { data: order } }: ShowProps) {
+    const receiptRef = useRef<HTMLDivElement>(null);
+    const { receiptData, loading, fetchReceipt } = useReceiptData();
+
+    const handlePrint = useReactToPrint({
+        contentRef: receiptRef,
+        documentTitle: `Receipt-${order.order_code}`,
+    });
+
+    const handleReprint = async () => {
+        const data = await fetchReceipt(order.id);
+        if (data) {
+            // Beri waktu sedikit agar DOM terupdate dengan receiptData baru
+            setTimeout(() => {
+                handlePrint();
+            }, 100);
+        }
+    };
+
     const getStatusVariant = (status: string) => {
         switch (status.toLowerCase()) {
             case 'settlement':
@@ -80,12 +103,24 @@ export default function Show({ order: { data: order } }: ShowProps) {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
+                        {/* Hidden Receipt for Printing */}
+                        <div style={{ display: 'none' }}>
+                            {receiptData && (
+                                <Receipt ref={receiptRef} data={receiptData} />
+                            )}
+                        </div>
+
                         <Button
                             variant="outline"
-                            onClick={() => window.print()}
+                            onClick={handleReprint}
+                            disabled={loading}
                             className="hidden md:flex"
                         >
-                            <Printer className="mr-2 h-4 w-4" />
+                            {loading ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <Printer className="mr-2 h-4 w-4" />
+                            )}
                             Print Receipt
                         </Button>
                     </div>

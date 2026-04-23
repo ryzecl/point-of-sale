@@ -78,9 +78,28 @@ export interface CheckoutData {
     note: string;
 }
 
+export interface ReceiptItem {
+    name: string;
+    quantity: number;
+    price: number;
+    total: number;
+}
+
 export interface OrderSuccessData {
     orderCode: string;
     grandTotal: number;
+    subtotal: number;
+    tax: number;
+    discount: number;
+    customerName: string;
+    cashierName: string;
+    tableNumber: number;
+    paymentMethod: string;
+    paymentAmount: number;
+    changeAmount: number;
+    note: string | null;
+    createdAt: string;
+    items: ReceiptItem[];
     snapToken?: string;
     message: string;
 }
