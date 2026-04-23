@@ -38,4 +38,4 @@ export interface ChartDataResponse {
     meta: ChartMeta;
 }
 
-export type PeriodType = 'daily' | 'weekly' | 'monthly' | 'yearly';
+export type PeriodType = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom';

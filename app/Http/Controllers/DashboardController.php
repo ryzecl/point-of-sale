@@ -38,9 +38,9 @@ class DashboardController extends Controller
         $date = Carbon::parse($request->input('date', today()));
 
         // Tentukan range waktu
-        if ($fromDate && $toDate) {
-            $start = Carbon::parse($fromDate)->startOfDay();
-            $end = Carbon::parse($toDate)->endOfDay();
+        if ($request->filled('from') || $request->filled('to')) {
+            $start = $request->filled('from') ? Carbon::parse($request->input('from'))->startOfDay() : $date->copy()->startOfDay();
+            $end = $request->filled('to') ? Carbon::parse($request->input('to'))->endOfDay() : $start->copy()->endOfDay();
             $period = 'custom';
         } else {
             [$start, $end] = match ($period) {

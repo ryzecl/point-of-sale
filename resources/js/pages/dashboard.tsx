@@ -3,7 +3,6 @@ import {
     AlertTriangle,
     Banknote,
     Calculator,
-    Calendar,
     ShoppingCart,
     TrendingUp,
     XCircle,
@@ -54,17 +53,27 @@ export default function Dashboard({ stats }: DashboardProps) {
     const statCards = [
         {
             title: 'Total Orders',
-            value: (stats.totalOrdersToday || 0).toString(),
+            value: (
+                chartHook.data?.summary?.totalOrders ??
+                stats.totalOrdersToday ??
+                0
+            ).toString(),
             icon: ShoppingCart,
-            description: 'Number of orders today',
+            description: chartHook.data
+                ? 'Orders in selected period'
+                : 'Number of orders today',
             color: 'text-orange-600 dark:text-orange-400',
             bgColor: 'bg-orange-100/50 dark:bg-orange-500/10',
         },
         {
-            title: "Today's Revenue",
-            value: formatCurrency(stats.todayRevenue),
+            title: chartHook.data ? 'Total Revenue' : "Today's Revenue",
+            value: formatCurrency(
+                chartHook.data?.summary?.totalRevenue ?? stats.todayRevenue,
+            ),
             icon: Banknote,
-            description: 'Total revenue collected today',
+            description: chartHook.data
+                ? 'Revenue in selected period'
+                : 'Total revenue collected today',
             color: 'text-emerald-600 dark:text-emerald-400',
             bgColor: 'bg-emerald-100/50 dark:bg-emerald-500/10',
         },
@@ -78,9 +87,13 @@ export default function Dashboard({ stats }: DashboardProps) {
         },
         {
             title: 'Average Revenue',
-            value: formatCurrency(stats.averageRevenue),
+            value: formatCurrency(
+                chartHook.data?.summary?.avgOrderValue ?? stats.averageRevenue,
+            ),
             icon: Calculator,
-            description: 'Average revenue per order',
+            description: chartHook.data
+                ? 'Average in selected period'
+                : 'Average revenue per order',
             color: 'text-purple-600 dark:text-purple-400',
             bgColor: 'bg-purple-100/50 dark:bg-purple-500/10',
         },
@@ -145,42 +158,6 @@ export default function Dashboard({ stats }: DashboardProps) {
                     ))}
                 </div>
 
-                {/* Date Filter Bar */}
-                <div className="flex flex-wrap items-center justify-between gap-4 bg-card/50 p-4 rounded-xl border border-border/50 backdrop-blur-sm">
-                    <div className="flex items-center gap-2">
-                        <Calendar className="size-5 text-muted-foreground" />
-                        <h3 className="font-semibold">Filter Laporan Kustom</h3>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3">
-                        <div className="flex items-center gap-2">
-                            <label className="text-xs text-muted-foreground font-medium">Dari:</label>
-                            <input
-                                type="date"
-                                className="bg-background border rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 dark:invert-[0.1]"
-                                value={chartHook.dateRange.from || ''}
-                                onChange={(e) => chartHook.setDateRange(prev => ({ ...prev, from: e.target.value }))}
-                            />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <label className="text-xs text-muted-foreground font-medium">Sampai:</label>
-                            <input
-                                type="date"
-                                className="bg-background border rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 dark:invert-[0.1]"
-                                value={chartHook.dateRange.to || ''}
-                                onChange={(e) => chartHook.setDateRange(prev => ({ ...prev, to: e.target.value }))}
-                            />
-                        </div>
-                        {(chartHook.dateRange.from || chartHook.dateRange.to) && (
-                            <button
-                                onClick={() => chartHook.setDateRange({})}
-                                className="text-xs text-red-600 font-medium hover:underline px-2"
-                            >
-                                Reset
-                            </button>
-                        )}
-                    </div>
-                </div>
-
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
                     <RevenueTrendChart
                         data={chartHook.data?.trendData ?? []}
@@ -201,7 +178,6 @@ export default function Dashboard({ stats }: DashboardProps) {
         </>
     );
 }
-
 
 Dashboard.layout = {
     breadcrumbs: [

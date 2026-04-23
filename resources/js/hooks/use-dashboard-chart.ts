@@ -8,20 +8,14 @@ export function useDashboardChart() {
     const [date, setDate] = useState(
         () => new Date().toISOString().split('T')[0],
     );
-    const [dateRange, setDateRange] = useState<{ from?: string; to?: string }>(
-        {},
-    );
 
     const fetchData = useCallback(async () => {
         setLoading(true);
 
         try {
-            const params = new URLSearchParams({
-                period,
-                date,
-                ...(dateRange.from && { from: dateRange.from }),
-                ...(dateRange.to && { to: dateRange.to }),
-            });
+            const params = new URLSearchParams({ period, date });
+            console.log('Fetching chart data with params:', params.toString());
+
             const res = await fetch(`/dashboard/chart-data?${params}`);
             const json: ChartDataResponse = await res.json();
             setData(json);
@@ -30,7 +24,7 @@ export function useDashboardChart() {
         } finally {
             setLoading(false);
         }
-    }, [period, date, dateRange]);
+    }, [period, date]);
 
     useEffect(() => {
         fetchData();
@@ -43,8 +37,6 @@ export function useDashboardChart() {
         setPeriod,
         date,
         setDate,
-        dateRange,
-        setDateRange,
         refetch: fetchData,
     };
 }
