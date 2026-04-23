@@ -111,10 +111,25 @@ class DashboardController extends Controller
             'avgOrderValue' => round((clone $baseQuery)->avg('grand_total') ?? 0),
         ];
 
+        // === RECENT ORDERS ===
+        $recentOrders = Order::query()
+            ->select('id', 'customer_name', 'grand_total', 'status', 'created_at')
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get()
+            ->map(fn($order) => [
+                'id'            => $order->id,
+                'customer_name' => $order->customer_name,
+                'grand_total'   => (float) $order->grand_total,
+                'status'        => $order->status,
+                'created_at'    => $order->created_at->diffForHumans(),
+            ]);
+
         return response()->json([
             'trendData'           => $trendData,
             'paymentDistribution' => $paymentDistribution,
             'topItems'            => $topItems,
+            'recentOrders'        => $recentOrders,
             'summary'             => $summary,
             'meta' => [
                 'period'     => $period,

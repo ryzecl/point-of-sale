@@ -8,6 +8,7 @@ import {
     XCircle,
 } from 'lucide-react';
 import { PaymentDistributionChart } from '@/components/charts/payment-distribution-chart';
+import { RecentOrdersList } from '@/components/charts/recent-orders-list';
 import { RevenueTrendChart } from '@/components/charts/revenue-trend-chart';
 import { TopItemsList } from '@/components/charts/top-items-list';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -171,6 +172,10 @@ export default function Dashboard({ stats }: DashboardProps) {
                     />
                     <TopItemsList
                         items={chartHook.data?.topItems ?? []}
+                        loading={chartHook.loading}
+                    />
+                    <RecentOrdersList
+                        orders={chartHook.data?.recentOrders ?? []}
                         loading={chartHook.loading}
                     />
                 </div>

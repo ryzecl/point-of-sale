@@ -16,7 +16,7 @@ const formatCurrency = (v: number) =>
 
 export function TopItemsList({ items, loading }: Props) {
     return (
-        <Card className="border-none shadow-md col-span-full lg:col-span-12">
+        <Card className="border-none shadow-md col-span-full lg:col-span-6">
             <CardHeader>
                 <CardTitle className="text-lg font-semibold">
                     Menu Terlaris

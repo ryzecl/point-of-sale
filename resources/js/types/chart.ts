@@ -30,10 +30,19 @@ export interface TopItem {
     total_revenue: number;
 }
 
+export interface RecentOrder {
+    id: number;
+    customer_name: string | null;
+    grand_total: number;
+    status: string;
+    created_at: string;
+}
+
 export interface ChartDataResponse {
     trendData: TrendDataPoint[];
     paymentDistribution: PaymentDistItem[];
     topItems: TopItem[];
+    recentOrders: RecentOrder[];
     summary: ChartSummary;
     meta: ChartMeta;
 }
