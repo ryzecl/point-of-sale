@@ -32,6 +32,16 @@ class User extends Authenticatable
         ];
     }
 
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = strtolower($value);
+    }
+
+    public function setEmailAttribute($value)
+    {
+        $this->attributes['email'] = strtolower($value);
+    }
+
     public function role()
     {
         return $this->belongsTo(Role::class);

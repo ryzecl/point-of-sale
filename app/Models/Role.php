@@ -14,6 +14,11 @@ class Role extends Model
 
     protected $dates = ['deleted_at'];
 
+    public function setRoleNameAttribute($value)
+    {
+        $this->attributes['role_name'] = strtolower($value);
+    }
+
     public function users()
     {
         return $this->hasMany(User::class);

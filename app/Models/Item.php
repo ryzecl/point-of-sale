@@ -16,6 +16,11 @@ class Item extends Model
         'is_active' => 'boolean',
     ];
 
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = strtolower($value);
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);

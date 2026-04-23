@@ -13,6 +13,11 @@ class Category extends Model
     protected $fillable = ['cat_name', 'description'];
 
     protected $dates = ['deleted_at'];
+    
+    public function setCatNameAttribute($value)
+    {
+        $this->attributes['cat_name'] = strtolower($value);
+    }
 
     public function items()
     {
