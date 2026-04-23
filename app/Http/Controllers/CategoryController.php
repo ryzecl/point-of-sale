@@ -5,11 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CategoryStoreRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use App\Services\CategoryService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
+    protected CategoryService $categoryService;
+
+    public function __construct(CategoryService $categoryService)
+    {
+        $this->categoryService = $categoryService;
+    }
+
     public function index()
     {
         $perPage = request()->query('perPage', 25);
@@ -24,21 +32,19 @@ class CategoryController extends Controller
 
     public function store(CategoryStoreRequest $request)
     {
-        Category::create($request->all());
+        $this->categoryService->createCategory($request->all());
         return back()->with('success', 'Data saved successfully.');
     }
 
     public function update(CategoryStoreRequest $request, $category_id)
     {
-        $category = Category::findOrFail($category_id);
-        $category->update($request->all());
+        $this->categoryService->updateCategory($category_id, $request->all());
         return back()->with('success', 'Data change update successfully');
     }
 
     public function destroy($category_id)
     {
-        $category = Category::findOrFail($category_id);
-        $category->delete();
+        $this->categoryService->deleteCategory($category_id);
 
         return back()->with('success', 'Category deleted successfully');
     }

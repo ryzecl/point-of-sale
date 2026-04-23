@@ -14,19 +14,23 @@ use App\Services\ItemService;
 
 class ItemController extends Controller
 {
-    public function index(Request $request, ItemService $itemService)
+    protected ItemService $itemService;
+
+    public function __construct(ItemService $itemService)
+    {
+        $this->itemService = $itemService;
+    }
+
+    public function index(Request $request)
     {
         $perPage = $request->query('perPage', 25);
-
-        $totalItemStats = Item::query();
-
         $query = Item::with('category');
 
         // Use service
-        $query = $itemService->applyFilters($query, $request->all());
-        // Statistics before pagination (clone so we don't modify the main query)
+        $query = $this->itemService->applyFilters($query, $request->all());
+        
         $stats = [
-            'totalItemStats' => $totalItemStats->count(),
+            'totalItemStats' => Item::count(),
             'total' => (clone $query)->count(),
             'active' => (clone $query)->where('is_active', 1)->count(),
             'inactive' => (clone $query)->where('is_active', 0)->count(),
@@ -46,30 +50,15 @@ class ItemController extends Controller
 
     public function store(ItemStoreRequest $request)
     {
-        $data = $request->validated();
-        if ($request->hasFile('img')) {
-            $data['img'] = $request->file('img')->store('items', 'public');
-        }
-        Item::create($data);
+        $this->itemService->createItem($request->validated(), $request->file('img'));
+        
         return back()->with('success', 'Item created!');
     }
 
     public function update(ItemStoreRequest $request, Item $item)
     {
-        $data = $request->validated();
-        // IMAGE UPDATE LOGIC:
-        if ($request->hasFile('img')) {
-            // 1. Delete old file if exists
-            if ($item->img && Storage::disk('public')->exists($item->img)) {
-                Storage::disk('public')->delete($item->img);
-            }
-            // 2. Save new file
-            $data['img'] = $request->file('img')->store('items', 'public');
-        } else {
-            // If no new image, do not update img column (keep old path)
-            unset($data['img']);
-        }
-        $item->update($data);
+        $this->itemService->updateItem($item, $request->validated(), $request->file('img'));
+        
         return back()->with('success', 'Item updated successfully!');
     }
 

@@ -2,13 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\Item;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 
 class ItemService
 {
     /**
      * Menerapkan filter pada query Item.
-     * Mengembalikan Builder sehingga bisa di-paginate, count, atau get di controller.
      */
     public function applyFilters(Builder $query, array $filters): Builder
     {
@@ -35,5 +36,44 @@ class ItemService
             ->when(isset($filters['is_active']), function ($q) use ($filters) {
                 $q->where('is_active', $filters['is_active']);
             });
+    }
+
+    /**
+     * Get item statistics for dashboard/index.
+     */
+    public function getStats(): array
+    {
+        return [
+            'totalItemStats' => Item::count(),
+            'low_stock' => Item::whereColumn('stock', '<=', 'min_stock')->count(),
+        ];
+    }
+
+    /**
+     * Create a new item.
+     */
+    public function createItem(array $data, $image = null): Item
+    {
+        if ($image) {
+            $data['img'] = $image->store('items', 'public');
+        }
+
+        return Item::create($data);
+    }
+
+    /**
+     * Update an existing item.
+     */
+    public function updateItem(Item $item, array $data, $image = null): bool
+    {
+        if ($image) {
+            // Delete old image
+            if ($item->img && Storage::disk('public')->exists($item->img)) {
+                Storage::disk('public')->delete($item->img);
+            }
+            $data['img'] = $image->store('items', 'public');
+        }
+
+        return $item->update($data);
     }
 }

@@ -140,6 +140,35 @@ class OrderService
         ];
     }
 
+    public function updateStatus(Order $order, $user): bool
+    {
+        $role = $user->role->role_name;
+
+        if ($role == 'admin' || $role == 'cashier') {
+            if ($order->status === \App\Enums\OrderStatus::PENDING) {
+                $order->status = \App\Enums\OrderStatus::SETTLEMENT;
+            } elseif ($order->status === \App\Enums\OrderStatus::COOKED) {
+                $order->status = \App\Enums\OrderStatus::SERVED;
+            }
+        } else {
+            if ($order->status === \App\Enums\OrderStatus::SETTLEMENT) {
+                $order->status = \App\Enums\OrderStatus::COOKED;
+            }
+        }
+
+        return $order->save();
+    }
+
+    public function cancelOrder(Order $order): bool
+    {
+        if ($order->status !== \App\Enums\OrderStatus::PENDING) {
+            return false;
+        }
+
+        $order->status = \App\Enums\OrderStatus::CANCEL;
+        return $order->save();
+    }
+
     private function generateOrderCode(): string
     {
         return 'TRX-' . now()->format('Ymd') . '-' . strtoupper(Str::random(4));

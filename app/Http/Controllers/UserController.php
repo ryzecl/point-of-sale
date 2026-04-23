@@ -7,11 +7,19 @@ use App\Http\Resources\RoleResource;
 use App\Http\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class UserController extends Controller
 {
+    protected UserService $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function index()
     {
         $perPage = request()->query('perPage', 25);
@@ -28,10 +36,7 @@ class UserController extends Controller
 
     public function store(UserStoreRequest $request)
     {
-        $data = $request->validated();
-        $data['password'] = bcrypt($data['password']);
-
-        User::create($data);
+        $this->userService->createUser($request->validated());
 
         return back()->with('success', 'User created successfully.');
     }
@@ -45,22 +50,14 @@ class UserController extends Controller
 
     public function update(UserStoreRequest $request, User $user)
     {
-        $data = $request->validated();
-        
-        if (empty($data['password'])) {
-            unset($data['password']);
-        } else {
-            $data['password'] = bcrypt($data['password']);
-        }
-
-        $user->update($data);
+        $this->userService->updateUser($user, $request->validated());
 
         return back()->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user)
     {
-        $user->delete();
+        $this->userService->deleteUser($user);
 
         return back()->with('success', 'User deleted successfully.');
     }
