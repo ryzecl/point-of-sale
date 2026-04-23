@@ -22,7 +22,7 @@ class ItemController extends Controller
 
         $query = Item::with('category');
 
-        // Gunakan service
+        // Use service
         $query = $itemService->applyFilters($query, $request->all());
         // Statistics before pagination (clone so we don't modify the main query)
         $stats = [
@@ -57,16 +57,16 @@ class ItemController extends Controller
     public function update(ItemStoreRequest $request, Item $item)
     {
         $data = $request->validated();
-        // LOGIKA UPDATE GAMBAR:
+        // IMAGE UPDATE LOGIC:
         if ($request->hasFile('img')) {
-            // 1. Hapus file lama jika ada
+            // 1. Delete old file if exists
             if ($item->img && Storage::disk('public')->exists($item->img)) {
                 Storage::disk('public')->delete($item->img);
             }
-            // 2. Simpan file baru
+            // 2. Save new file
             $data['img'] = $request->file('img')->store('items', 'public');
         } else {
-            // Jika tidak ada gambar baru, jangan update kolom img (biarkan path lama tetap ada)
+            // If no new image, do not update img column (keep old path)
             unset($data['img']);
         }
         $item->update($data);

@@ -17,12 +17,12 @@ class OrderController extends Controller
         $perPage = $request->query('perPage', 25);
 
         $totalOrderStats = Order::query();
-        // Mencegah N+1 Problem: Menggunakan 'with' untuk memuat Relasi berlapis
-        // - 'user' -> load data user/kasir yg memproses
-        // - 'orderItems.item' -> load isi struk beserta objek master detail item-nya masing-masing
+        // Prevent N+1 Problem: Using 'with' to load nested relations
+        // - 'user' -> load user/cashier data who processed the order
+        // - 'orderItems.item' -> load receipt items along with their respective master detail item objects
         $query = Order::with(['user', 'orderItems.item']);
 
-        // Pencarian (Search) by Order Code
+        // Search by Order Code
         $query = $orderService->applyFilters($query, $request->all());
 
         $stats = [
@@ -35,7 +35,7 @@ class OrderController extends Controller
             'cancel' => $query->clone()->whereIn('status', ['expire', 'cancel'])->count(),
         ];
 
-        // Selalu urutkan dari pesanan terbaru (Latest)
+        // Always sort from the latest orders (Latest)
         $orders = OrderResource::collection($query->latestDeterministic()->paginate((int) $perPage)->withQueryString());
 
         return Inertia::render('order/Index', [
@@ -72,7 +72,7 @@ class OrderController extends Controller
 
     public function cancel(Order $order)
     {
-        // Pastikan hanya pending yang bisa di-cancel
+        // Ensure only pending orders can be cancelled
         if ($order->status !== OrderStatus::PENDING) {
             return back()->with('error', 'Only pending orders can be cancelled');
         }

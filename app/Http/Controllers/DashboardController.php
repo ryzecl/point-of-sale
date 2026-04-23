@@ -33,26 +33,17 @@ class DashboardController extends Controller
     public function chartData(Request $request): JsonResponse
     {
         $period = $request->input('period', 'daily');
-        $fromDate = $request->input('from');
-        $toDate = $request->input('to');
         $date = Carbon::parse($request->input('date', today()));
 
-        // Tentukan range waktu
-        if ($request->filled('from') || $request->filled('to')) {
-            $start = $request->filled('from') ? Carbon::parse($request->input('from'))->startOfDay() : $date->copy()->startOfDay();
-            $end = $request->filled('to') ? Carbon::parse($request->input('to'))->endOfDay() : $start->copy()->endOfDay();
-            $period = 'custom';
-        } else {
-            [$start, $end] = match ($period) {
-                'daily'   => [$date->copy()->startOfDay(), $date->copy()->endOfDay()],
-                'weekly'  => [$date->copy()->startOfWeek(), $date->copy()->endOfWeek()],
-                'monthly' => [$date->copy()->startOfMonth(), $date->copy()->endOfMonth()],
-                'yearly'  => [$date->copy()->startOfYear(), $date->copy()->endOfYear()],
-                default   => [$date->copy()->startOfDay(), $date->copy()->endOfDay()],
-            };
-        }
+        [$start, $end] = match ($period) {
+            'daily'   => [$date->copy()->startOfDay(), $date->copy()->endOfDay()],
+            'weekly'  => [$date->copy()->startOfWeek(), $date->copy()->endOfWeek()],
+            'monthly' => [$date->copy()->startOfMonth(), $date->copy()->endOfMonth()],
+            'yearly'  => [$date->copy()->startOfYear(), $date->copy()->endOfYear()],
+            default   => [$date->copy()->startOfDay(), $date->copy()->endOfDay()],
+        };
 
-        // Query dasar — hanya transaksi yang sudah dibayar (atau status tertentu)
+        // Base query — only transactions that are paid (or specific status)
         $baseQuery = Order::whereBetween('created_at', [$start, $end])
             ->whereNotIn('status', ['cancel', 'expire']);
 
@@ -62,7 +53,6 @@ class DashboardController extends Controller
             'weekly'  => "DATE(created_at) as time_key",
             'monthly' => "DAY(created_at) as time_key",
             'yearly'  => "MONTH(created_at) as time_key",
-            'custom'  => "DATE(created_at) as time_key",
         };
 
         $trendRaw = (clone $baseQuery)
@@ -72,7 +62,7 @@ class DashboardController extends Controller
             ->get()
             ->keyBy('time_key');
 
-        // Generate semua slot (termasuk yang kosong) agar chart tidak bolong
+        // Generate all slots (including empty ones) so the chart is continuous
         $trendData = $this->fillTimeSlots($period, $start, $end, $trendRaw);
 
         // === PAYMENT DISTRIBUTION ===
@@ -143,14 +133,27 @@ class DashboardController extends Controller
     }
 
     /**
-     * Isi slot waktu yang kosong (0 revenue/orders) agar chart kontinu.
+     * Fill empty time slots (0 revenue/orders) to ensure a continuous chart.
      */
     private function fillTimeSlots(string $period, Carbon $start, Carbon $end, $data): array
     {
         $slots = [];
-        $dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-        $monthNames = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-                           'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        $dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        $monthNames = [
+            '',
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec'
+        ];
 
         match ($period) {
             'daily' => (function () use (&$slots, $data) {
@@ -202,7 +205,7 @@ class DashboardController extends Controller
 
             'custom' => (function () use (&$slots, $data, $start, $end) {
                 $periodRange = CarbonPeriod::create($start, $end);
-                // Limit to max 31 days to avoid chart overflow if range too big
+                // Limit to max 31 days to avoid chart overflow if the range is too large
                 $limitedRange = $periodRange->take(31);
                 foreach ($limitedRange as $date) {
                     $key = $date->toDateString();

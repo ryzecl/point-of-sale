@@ -32,7 +32,6 @@ export default function CheckoutDialog({
     totalPembayaran,
     onOrderSubmit,
 }: CheckoutDialogProps) {
-    // State lokal khusus untuk kelengkapan form Checkout saja
     const [customerName, setCustomerName] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [paymentAmount, setPaymentAmount] = useState<number | ''>('');
@@ -49,7 +48,7 @@ export default function CheckoutDialog({
             paymentMethod === 'transfer'
                 ? totalPembayaran
                 : (paymentAmount as number);
-        // Panggil fungsi persetujuan utama di Cashier (Index.tsx) dengan melempar data yang sudah diisi
+
         onOrderSubmit({
             customerName,
             paymentMethod,
@@ -65,8 +64,6 @@ export default function CheckoutDialog({
             onOpenChange={(nextOpen) => {
                 setOpen(nextOpen);
 
-                // ✅ RESET HANYA SAAT DIALOG BENAR-BENAR DITUTUP
-                // Ini mencegah form kosong saat server sedang proses atau error.
                 if (!nextOpen) {
                     setCustomerName('');
                     setPaymentAmount('');
@@ -82,29 +79,28 @@ export default function CheckoutDialog({
                     disabled={cartLength === 0}
                 >
                     <CreditCard className="h-6 w-6" />
-                    Proccess Payment ({cartLength})
+                    Process Payment ({cartLength})
                 </Button>
             </DialogTrigger>
 
-            {/* Form Dialog Popup */}
             <DialogContent className="max-h-[95vh] overflow-y-auto sm:max-w-md md:max-w-xl">
                 <DialogHeader>
                     <DialogTitle className="text-2xl">
-                        Payment Detail
+                        Payment Details
                     </DialogTitle>
                     <DialogDescription>
                         Complete the details below to place your order.
                     </DialogDescription>
                 </DialogHeader>
 
-                {/* Ringkasan Belanja Mini */}
+                {/* Billing Info */}
                 <div className="flex items-center justify-between rounded-xl bg-primary/10 p-4">
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-muted-foreground">
-                            Info Tagihan
+                            Billing Info
                         </span>
                         <span className="text-xs text-muted-foreground">
-                            Subtotal + PPN 10%
+                            Subtotal + Tax 10%
                         </span>
                     </div>
                     <span className="text-2xl font-black text-primary">
@@ -112,15 +108,15 @@ export default function CheckoutDialog({
                     </span>
                 </div>
 
-                {/* Baris Utama: Nama Pelanggan */}
+                {/* Customer Name */}
                 <div className="flex flex-col gap-2">
                     <Label htmlFor="customerName" className="font-bold">
-                        Nama Pelanggan
+                        Customer Name
                     </Label>
                     <Input
                         id="customerName"
                         type="text"
-                        placeholder="Contoh: Budi Santoso"
+                        placeholder="e.g. John Doe"
                         autoComplete="off"
                         autoFocus
                         className="h-12 text-lg font-semibold"
@@ -129,16 +125,15 @@ export default function CheckoutDialog({
                     />
                 </div>
 
-                {/* Grid Input */}
                 <div className="grid gap-4 py-2">
-                    {/* Baris 1: No Table & Metode Pembayaran */}
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        {/* Table Number */}
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="table">No. Table</Label>
+                            <Label htmlFor="table">Table No.</Label>
                             <Input
                                 id="table"
                                 type="number"
-                                placeholder="Contoh: 12"
+                                placeholder="e.g. 12"
                                 value={tableNumber}
                                 onChange={(e) =>
                                     setTableNumber(
@@ -149,10 +144,10 @@ export default function CheckoutDialog({
                                 }
                             />
                         </div>
+                        {/* Payment Method */}
                         <div className="flex flex-col gap-2">
-                            <Label>Metode Pembayaran</Label>
+                            <Label>Payment Method</Label>
                             <div className="grid grid-cols-2 gap-3">
-                                {/* Opsi Tunai (Cash) */}
                                 <div
                                     onClick={() => setPaymentMethod('cash')}
                                     className={`flex h-10 cursor-pointer items-center gap-3 rounded-xl border p-2 transition-all duration-200 hover:bg-primary/5 ${
@@ -167,11 +162,10 @@ export default function CheckoutDialog({
                                     <span
                                         className={`text-xs font-medium ${paymentMethod === 'cash' ? 'text-primary' : ''}`}
                                     >
-                                        Tunai (Cash)
+                                        Cash
                                     </span>
                                 </div>
 
-                                {/* Opsi Transfer / QRIS */}
                                 <div
                                     onClick={() => setPaymentMethod('transfer')}
                                     className={`flex h-10 cursor-pointer items-center gap-3 rounded-xl border p-2 transition-all duration-200 hover:bg-primary/5 ${
@@ -193,13 +187,11 @@ export default function CheckoutDialog({
                         </div>
                     </div>
 
-                    {/* Baris 2: Jumlah Bayar & Kembalian */}
+                    {/* Cash Payment Details */}
                     {paymentMethod === 'cash' && (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="flex flex-col gap-2">
-                                <Label htmlFor="payment">
-                                    Jumlah Bayar Tertunai
-                                </Label>
+                                <Label htmlFor="payment">Amount Received</Label>
                                 <div className="relative">
                                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                         <span className="font-semibold text-muted-foreground">
@@ -221,7 +213,6 @@ export default function CheckoutDialog({
                                         }
                                     />
                                 </div>
-                                {/* Tombol Cepat Uang Pas */}
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -230,17 +221,17 @@ export default function CheckoutDialog({
                                         setPaymentAmount(totalPembayaran)
                                     }
                                 >
-                                    Uang Pas
+                                    Exact Amount
                                 </Button>
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                <Label>Kembalian</Label>
+                                <Label>Change</Label>
                                 <div
                                     className={`flex h-12 items-center rounded-md border px-3 text-lg font-bold transition-colors ${kembalian > 0 ? 'border-green-500/20 bg-green-500/10 text-green-600' : 'bg-muted/50 text-muted-foreground'}`}
                                 >
-                                {formatCurrency(kembalian)}
-                            </div>
+                                    {formatCurrency(kembalian)}
+                                </div>
                             </div>
                         </div>
                     )}
@@ -248,18 +239,19 @@ export default function CheckoutDialog({
                     {paymentMethod === 'transfer' && (
                         <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
                             <p className="text-sm text-blue-600 dark:text-blue-400">
-                                💡 Anda akan diarahkan ke halaman pembayaran
-                                Midtrans setelah menekan tombol di bawah.
+                                💡 You will be redirected to the payment page
+                                after clicking the button below.
                             </p>
                         </div>
                     )}
 
+                    {/* Note */}
                     <div className="flex flex-col gap-2">
-                        <Label htmlFor="note">Catatan Khusus (Opsional)</Label>
+                        <Label htmlFor="note">Special Note (Optional)</Label>
                         <Textarea
                             id="note"
                             className="min-h-[100px]"
-                            placeholder="Contoh: Pisah bon, tidak pakai bawang..."
+                            placeholder="e.g. No onions, separate billing..."
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
                         />
@@ -267,13 +259,11 @@ export default function CheckoutDialog({
                 </div>
 
                 <DialogFooter className="mt-4 border-t pt-4">
-                    {/* Logika Kunci Form (Disabled validation) */}
                     <Button
                         size="lg"
                         className="text-md h-12 w-full rounded-xl font-bold"
                         disabled={
                             customerName === '' ||
-                            tableNumber === '' ||
                             (paymentMethod === 'cash' &&
                                 (paymentAmount === '' ||
                                     paymentAmount < totalPembayaran))
@@ -281,8 +271,8 @@ export default function CheckoutDialog({
                         onClick={handleProcess}
                     >
                         {paymentMethod === 'cash'
-                            ? 'Selesaikan Pesanan'
-                            : 'Lanjut ke Pembayaran'}
+                            ? 'Complete Order'
+                            : 'Proceed to Payment'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

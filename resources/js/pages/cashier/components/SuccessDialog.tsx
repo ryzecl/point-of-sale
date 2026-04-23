@@ -37,49 +37,46 @@ export default function SuccessDialog({
                         <CheckCircle className="h-12 w-12 text-green-500" />
                     </div>
                     <DialogTitle className="text-2xl font-bold">
-                        Pembayaran Berhasil!
+                        Payment Successful!
                     </DialogTitle>
-                    <DialogDescription>
-                        Transaksi telah berhasil diproses.
+                    <DialogDescription className="text-center">
+                        Transaction has been processed successfully.
                     </DialogDescription>
                 </DialogHeader>
 
-                {/* Detail Transaksi */}
-                <div className="my-4 space-y-3 rounded-2xl bg-muted/30 p-6">
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                            No. Transaksi
+                <div className="space-y-4 py-4">
+                    <div className="flex flex-col items-center justify-center space-y-1 rounded-xl bg-muted/50 py-6">
+                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                            Order Code
                         </span>
-                        <span className="font-mono text-sm font-bold">
-                            {orderCode}
+                        <span className="text-2xl font-black tracking-widest">
+                            #{orderCode}
                         </span>
                     </div>
-                    <div className="border-t border-dashed border-muted" />
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                            Grand Total
-                        </span>
-                        <span className="text-xl font-black text-primary">
+
+                    <div className="flex justify-between rounded-lg bg-muted/30 p-3 text-sm">
+                        <span className="text-muted-foreground">Total Payment</span>
+                        <span className="font-bold">
                             {formatCurrency(grandTotal)}
                         </span>
                     </div>
                 </div>
 
-                <DialogFooter className="flex flex-col gap-3 sm:flex-col">
+                <DialogFooter className="flex-col gap-2 sm:flex-col">
                     <Button
-                        className="w-full gap-2 rounded-xl"
-                        variant="outline"
                         onClick={handlePrintReceipt}
+                        className="w-full font-bold"
+                        variant="outline"
                     >
-                        <Printer className="h-4 w-4" />
-                        Cetak Struk
+                        <Printer className="mr-2 size-4" />
+                        Print Receipt
                     </Button>
                     <Button
                         className="w-full gap-2 rounded-xl"
                         onClick={onClose}
                     >
                         <X className="h-4 w-4" />
-                        Selesai
+                        Finish
                     </Button>
                 </DialogFooter>
             </DialogContent>

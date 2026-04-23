@@ -41,7 +41,7 @@ export function RevenueTrendChart({
         <Card className="border-none shadow-md col-span-full lg:col-span-8">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <CardTitle className="text-lg font-semibold">
-                    Tren Pendapatan & Pesanan
+                    Revenue & Orders Trend
                 </CardTitle>
                 <div className="flex gap-1 rounded-lg bg-muted p-1">
                     {PERIODS.map((p) => (
@@ -132,8 +132,8 @@ export function RevenueTrendChart({
                                           }).format(value as number)
                                         : value,
                                     name === 'revenue'
-                                        ? 'Pendapatan'
-                                        : 'Pesanan',
+                                        ? 'Revenue'
+                                        : 'Orders',
                                 ]) as any}
                             />
                             <Area

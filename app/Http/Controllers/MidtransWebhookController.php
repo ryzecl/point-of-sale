@@ -31,7 +31,7 @@ class MidtransWebhookController extends Controller
                 'fraud'    => $fraudStatus,
             ]);
 
-            // Cari order berdasarkan order_code
+            // Find order by order_code
             $order = Order::where('order_code', $orderId)->first();
 
             if (!$order) {
@@ -39,12 +39,12 @@ class MidtransWebhookController extends Controller
                 return response()->json(['message' => 'Order not found'], 404);
             }
 
-            // Idempotency check: Jangan update jika sudah settlement
+            // Idempotency check: Do not update if already settled
             if ($order->status === OrderStatus::SETTLEMENT) {
                 return response()->json(['message' => 'Already settled']);
             }
 
-            // Update status berdasarkan notifikasi Midtrans
+            // Update status based on Midtrans notification
             match ($transactionStatus) {
                 'capture' => $this->handleCapture($order, $fraudStatus, $transactionId),
                 'settlement' => $this->updateOrderStatus($order, OrderStatus::SETTLEMENT, $transactionId),

@@ -13,7 +13,7 @@ const COLORS: Record<string, string> = {
 };
 
 const LABELS: Record<string, string> = {
-    cash: 'Tunai',
+    cash: 'Cash',
     transfer: 'Transfer',
 };
 
@@ -28,10 +28,10 @@ export function PaymentDistributionChart({ data, loading }: Props) {
     const total = data.reduce((sum, d) => sum + d.count, 0);
 
     return (
-        <Card className="border-none shadow-md col-span-full lg:col-span-4">
+        <Card className="col-span-full border-none shadow-md lg:col-span-4">
             <CardHeader>
                 <CardTitle className="text-lg font-semibold">
-                    Metode Pembayaran
+                    Payment Methods
                 </CardTitle>
             </CardHeader>
             <CardContent>
@@ -40,11 +40,15 @@ export function PaymentDistributionChart({ data, loading }: Props) {
                         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                     </div>
                 ) : data.length === 0 ? (
-                    <div className="flex h-[250px] flex-col items-center justify-center text-center p-4">
-                        <div className="rounded-full bg-muted p-3 mb-2">
-                            <span className="text-muted-foreground text-xs font-semibold">Empty</span>
+                    <div className="flex h-[250px] flex-col items-center justify-center p-4 text-center">
+                        <div className="mb-2 rounded-full bg-muted p-3">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                                Empty
+                            </span>
                         </div>
-                        <p className="text-sm text-muted-foreground">Tidak ada data transaksi pada periode ini.</p>
+                        <p className="text-sm text-muted-foreground">
+                            No transaction data for this period.
+                        </p>
                     </div>
                 ) : (
                     <>
@@ -72,8 +76,12 @@ export function PaymentDistributionChart({ data, loading }: Props) {
                                     ))}
                                 </Pie>
                                 <Tooltip
-                                    formatter={((value: any) =>
-                                        formatCurrency(value as number)) as any}
+                                    formatter={
+                                        ((value: any) =>
+                                            formatCurrency(
+                                                value as number,
+                                            )) as any
+                                    }
                                     contentStyle={{
                                         backgroundColor: 'hsl(var(--card))',
                                         border: '1px solid hsl(var(--border))',
@@ -83,12 +91,11 @@ export function PaymentDistributionChart({ data, loading }: Props) {
                             </PieChart>
                         </ResponsiveContainer>
                         <div className="mt-4 space-y-3">
-
                             {data.map((item) => {
                                 const pct =
                                     total > 0
                                         ? ((item.count / total) * 100).toFixed(
-                                              1
+                                              1,
                                           )
                                         : '0';
 

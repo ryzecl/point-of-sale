@@ -24,16 +24,16 @@ class OfflineOrderController extends Controller
         $query = Item::query()->with('category')
             ->where('is_active', true);
 
-        // Gunakan service yang sama
+        // Use the same service
         $query = $itemService->applyFilters($query, $request->all());
 
-        // Deteksi apakan request dari HP
+        // Detect if request is from mobile
         $isMobile = \Illuminate\Support\Str::contains(
             strtolower($request->userAgent()),
             ['mobile', 'android', 'iphone', 'ipad']
         );
 
-        // Jika dari HP ambil 10 (biar cepat & pas 2 kolom x 5), jika Desktop 24 (pas untuk 8 kolom atau 6 kolom)
+        // If mobile take 10 (to be fast & fit 2 cols x 5), if Desktop 25 (fits 8 or 6 cols)
         $defaultPerPage = $isMobile ? 10 : 25;
         $perPage = $request->input('perPage', $defaultPerPage);
 
@@ -60,26 +60,26 @@ class OfflineOrderController extends Controller
             $order = $result['order'];
             $snapToken = $result['snapToken'];
 
-            // Jika metode cash: redirect seperti biasa
+            // If cash method: redirect as usual
             if ($validated['paymentMethod'] === 'cash') {
                 return back()->with('orderSuccess', [
                     'orderCode'  => $order->order_code,
                     'grandTotal' => $order->grand_total,
-                    'message'    => "Pesanan #{$order->order_code} berhasil diproses!",
+                    'message'    => "Order #{$order->order_code} processed successfully!",
                 ]);
             }
 
-            // Jika metode transfer: kembalikan snap token ke frontend
+            // If transfer method: return snap token to frontend
             return back()->with('orderSuccess', [
                 'orderCode'  => $order->order_code,
                 'grandTotal' => $order->grand_total,
                 'snapToken'  => $snapToken,
-                'message'    => "Silakan selesaikan pembayaran.",
+                'message'    => "Please complete the payment.",
             ]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Order Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return back()->withErrors([
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'An error occurred: ' . $e->getMessage()
             ]);
         }
     }

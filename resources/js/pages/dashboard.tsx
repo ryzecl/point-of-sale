@@ -13,7 +13,9 @@ import { RevenueTrendChart } from '@/components/charts/revenue-trend-chart';
 import { TopItemsList } from '@/components/charts/top-items-list';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useDashboardChart } from '@/hooks/use-dashboard-chart';
+import { formatCurrency } from '@/lib/format-utils';
 import { dashboard } from '@/routes';
 
 interface Stats {
@@ -32,14 +34,6 @@ interface DashboardProps {
 export default function Dashboard({ stats }: DashboardProps) {
     const chartHook = useDashboardChart();
     console.log('Dashboard Stats:', stats);
-
-    const formatCurrency = (value: number) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-        }).format(value || 0);
-    };
 
     if (!stats) {
         return (
@@ -108,11 +102,12 @@ export default function Dashboard({ stats }: DashboardProps) {
                     <Alert className="border-amber-500/50 bg-amber-50 text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
                         <AlertTriangle className="size-4 text-amber-600! dark:text-amber-400!" />
                         <AlertTitle className="font-bold">
-                            Stok Hampir Habis!
+                            Low Stock Warning!
                         </AlertTitle>
                         <AlertDescription className="text-amber-800/80 dark:text-amber-200/80">
-                            Ada {stats.lowStockCount} item yang stoknya sudah
-                            mencapai batas minimum. Segera cek inventaris.
+                            There are {stats.lowStockCount} items that have
+                            reached the minimum stock level. Please check
+                            inventory.
                         </AlertDescription>
                     </Alert>
                 )}
@@ -120,11 +115,11 @@ export default function Dashboard({ stats }: DashboardProps) {
                     <Alert className="border-red-500/50 bg-red-50 text-red-900 dark:bg-red-950/20 dark:text-red-200">
                         <XCircle className="size-4 text-red-600! dark:text-red-400!" />
                         <AlertTitle className="font-bold">
-                            Stok Habis!
+                            Out of Stock!
                         </AlertTitle>
                         <AlertDescription className="text-red-800/80 dark:text-red-200/80">
-                            Ada {stats.outOfStockCount} item yang stoknya
-                            kosong. Segera isi kembali stok barang tersebut.
+                            There are {stats.outOfStockCount} items out of
+                            stock. Please restock immediately.
                         </AlertDescription>
                     </Alert>
                 )}
@@ -133,14 +128,15 @@ export default function Dashboard({ stats }: DashboardProps) {
                     {statCards.map((stat, index) => (
                         <Card
                             key={index}
-                            className="overflow-hidden border-none shadow-md transition-all hover:shadow-lg"
+                            className="animate-in fade-in slide-in-from-bottom-4 overflow-hidden border-none shadow-md transition-all duration-500 hover:scale-[1.02] hover:shadow-xl"
+                            style={{ animationDelay: `${index * 100}ms` }}
                         >
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">
                                     {stat.title}
                                 </CardTitle>
                                 <div
-                                    className={`rounded-lg p-2 ${stat.bgColor}`}
+                                    className={`rounded-xl bg-linear-to-br p-2.5 shadow-sm ${stat.bgColor}`}
                                 >
                                     <stat.icon
                                         className={`size-5 ${stat.color}`}
@@ -148,12 +144,21 @@ export default function Dashboard({ stats }: DashboardProps) {
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">
-                                    {stat.value}
-                                </div>
-                                <p className="mt-1 text-xs text-muted-foreground">
-                                    {stat.description}
-                                </p>
+                                {chartHook.loading ? (
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-8 w-[120px]" />
+                                        <Skeleton className="h-3 w-[150px]" />
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="text-2xl font-bold tracking-tight">
+                                            {stat.value}
+                                        </div>
+                                        <p className="mt-1 text-xs text-muted-foreground">
+                                            {stat.description}
+                                        </p>
+                                    </>
+                                )}
                             </CardContent>
                         </Card>
                     ))}

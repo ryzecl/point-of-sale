@@ -38,7 +38,7 @@ export function RecentOrdersList({ orders, loading }: Props) {
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                 <CardTitle className="text-lg font-semibold flex items-center gap-2">
                     <History className="size-5 text-muted-foreground" />
-                    Aktivitas Order Terbaru
+                    Recent Order Activities
                 </CardTitle>
             </CardHeader>
             <CardContent>

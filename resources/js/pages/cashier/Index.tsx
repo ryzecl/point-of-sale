@@ -1,6 +1,7 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { ShoppingCart, Search, X, Minus, Plus, RotateCcw } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -100,7 +101,7 @@ export default function Index({
             return;
         }
 
-        // Cegah merespons mutliganda untuk pesanan yang persis sama ID-nya
+        // Prevent multiple responses for the exact same order ID
         if (processedOrderRef.current === orderSuccess.orderCode) {
             return;
         }
@@ -123,7 +124,7 @@ export default function Index({
 
                 snapPay(orderSuccess.snapToken!, {
                     onSuccess: () => {
-                        // Pembayaran berhasil di sisi Midtrans
+                        // Payment successful on Midtrans side
                         setSuccessData(orderSuccess);
                         setIsSuccessOpen(true);
                         setCart([]);
@@ -131,15 +132,15 @@ export default function Index({
                     onPending: () => {
                         // Pembayaran pending (transfer manual, dll)
                         alert(
-                            'Pembayaran masih pending. Silakan cek status di halaman Order.',
+                            'Payment is still pending. Please check the status on the Orders page.',
                         );
                         setCart([]);
                     },
                     onError: () => {
-                        alert('Pembayaran gagal. Silakan coba lagi.');
+                        alert('Payment failed. Please try again.');
                     },
                     onClose: () => {
-                        // User menutup popup tanpa menyelesaikan pembayaran
+                        // User closed the popup without completing payment
                         console.log('Snap popup ditutup.');
                     },
                 });
@@ -183,7 +184,7 @@ export default function Index({
             );
 
             if (existingItem) {
-                // Jika sudah ada, tambahkan jumlah quantity (qty) menjadi +1
+                // If already exists, increment the quantity (qty) by +1
                 return prevCart.map((item) =>
                     item.id === product.id
                         ? { ...item, quantity: item.quantity + 1 }
@@ -191,7 +192,7 @@ export default function Index({
                 );
             }
 
-            // Jika belum ada di list keranjang, masukkan item gres dengan qty 1
+            // If not in the cart list, insert new item with qty 1
             return [...prevCart, { ...product, quantity: 1 }];
         });
     };
@@ -202,7 +203,7 @@ export default function Index({
             const existingItem = prevCart.find((item) => item.id === productId);
 
             if (existingItem?.quantity === 1) {
-                // Jika quantity saat ini = 1, saat dikurangi artinya terhapus seutuhnya (Filter yang TIDAK sama dengan ID-nya)
+                // If current quantity = 1, decreasing means it's fully removed (Filter for IDs NOT equal)
                 return prevCart.filter((item) => item.id !== productId);
             } else {
                 // Jika quantity lebih dari 1, turunkan angka quantity-nya jadi - 1
@@ -228,14 +229,14 @@ export default function Index({
     const tax = subtotal * 0.1; // Pajak 10%
     const grandTotal = subtotal + tax;
 
-    // Fungsi Menyelesaikan Pesanan dari anak komponen (CheckoutDialog.tsx)
+    // Function to complete the order from child component (CheckoutDialog.tsx)
     const handleSelesaikanPesanan = (data: CheckoutData) => {
         // Memanggil router.post Inertia untuk mengirim data ke Backend
         router.post(
             '/cashier',
             {
                 ...data,
-                // Map isi keranjang agar hanya mengirim ID dan jumlahnya saja
+                // Map cart content to only send ID and quantity
                 cart: cart.map((item) => ({
                     id: item.id,
                     quantity: item.quantity,
@@ -244,16 +245,17 @@ export default function Index({
             {
                 onSuccess: () => {
                     // Kita tidak perlu menutup dialog atau hapus cart di sini lagi,
-                    // Karena sudah dihandle secara terpusat oleh useEffect di atas
-                    // yang memantau flash.orderSuccess dari server.
+                    // We don't need to close the dialog or clear the cart here,
+                    // as it is handled centrally by the useEffect above
+                    // that monitors flash.orderSuccess from the server.
                 },
                 onError: (errors) => {
-                    // Handle Error (Opsional: Bisa tampilkan toast)
-                    console.error('Gagal memproses pesanan:', errors);
-                    alert(
-                        'Order Error: ' +
-                            (errors.message || 'Gagal memproses pesanan.'),
-                    );
+                    // Handle Error
+                    console.error('Failed to process order:', errors);
+                    toast.error('Error', {
+                        description:
+                            errors.message || 'Failed to process order.',
+                    });
                 },
                 preserveScroll: true,
             },
@@ -279,16 +281,16 @@ export default function Index({
                 <div className="flex shrink-0 flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">
-                            Katalog Produk
+                            Product Catalog
                         </h1>
                         <p className="mt-1 text-muted-foreground">
-                            Pilih produk untuk ditambahkan ke pesanan
+                            Select products to add to the order
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="relative w-full max-w-[300px]">
                             <Input
-                                placeholder="Cari nama produk..."
+                                placeholder="Search product name..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
@@ -312,7 +314,7 @@ export default function Index({
                             onClick={() => applyFilters({ search })}
                         >
                             <Search />
-                            <span className="hidden md:flex">Cari</span>
+                            <span className="hidden md:flex">Search</span>
                         </Button>
 
                         <PosFilter
@@ -332,7 +334,7 @@ export default function Index({
                         className="rounded-full px-6"
                         onClick={() => applyFilters({ category_id: undefined })}
                     >
-                        Semua
+                        All
                     </Button>
 
                     {categories.data.map((cat) => (
@@ -356,7 +358,7 @@ export default function Index({
 
                 {/* Product Grid */}
                 <div className="no-scrollbar flex-1 pr-2 pb-4 lg:overflow-y-auto">
-                    <div className="grid grid-cols-2 content-start gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-8">
+                    <div className="grid grid-cols-2 content-start gap-3 sm:grid-cols-3 md:grid-cols-4 lg:gap-4 xl:grid-cols-6 2xl:grid-cols-8">
                         {products.length > 0 ? (
                             products.map((item) => {
                                 const stock = item.stock ?? 0;
@@ -393,16 +395,16 @@ export default function Index({
                                         onClick={() => {
                                             handleAddToCart(item);
                                         }}
-                                        className="group form-ring relative flex cursor-pointer flex-col gap-1 overflow-hidden rounded-2xl border-2 border-transparent bg-card/50 py-0 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl active:scale-95"
+                                        className="group form-ring relative flex cursor-pointer flex-col gap-0 overflow-hidden rounded-xl border-2 border-transparent bg-card/50 py-0 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl active:scale-95"
                                         // className="group relative flex cursor-pointer flex-col gap-1 overflow-hidden rounded-2xl border-none bg-card/50 py-0 shadow-sm backdrop-blur-sm transition-all duration-300 hover:shadow-xl"
                                     >
-                                        <div className="absolute top-1 right-2 z-10">
+                                        <div className="absolute top-1 right-1 z-10">
                                             <Badge
                                                 variant="secondary"
-                                                className={`border-none font-semibold shadow-sm backdrop-blur-md ${catColor}`}
+                                                className={`border-none px-1.5 py-0 text-[10px] font-medium shadow-sm backdrop-blur-md ${catColor}`}
                                             >
                                                 {item.category?.cat_name ||
-                                                    'Tanpa Kategori'}
+                                                    'No Category'}
                                             </Badge>
                                         </div>
                                         <div className="relative aspect-4/3 overflow-hidden bg-muted/30">
@@ -420,20 +422,16 @@ export default function Index({
                                             <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                                         </div>
 
-                                        <CardHeader className="bg-card p-2">
-                                            <CardTitle className="line-clamp-1 text-base leading-tight font-medium transition-colors group-hover:text-primary">
+                                        <CardHeader className="bg-card p-2.5">
+                                            <CardTitle className="line-clamp-1 text-sm leading-tight font-semibold transition-colors group-hover:text-primary">
                                                 {item.name}
                                             </CardTitle>
-                                            <CardDescription className="mt-1 line-clamp-1 flex justify-between text-xs text-muted-foreground">
-                                                <div>
-                                                    <span className="text-xs text-muted-foreground">
-                                                        Stok:
-                                                    </span>
+                                            <CardDescription className="mt-1 line-clamp-1 flex justify-between text-[10px] text-muted-foreground">
+                                                <div className="flex items-center gap-1">
+                                                    <span>Stock:</span>
                                                     <Badge
                                                         variant={badgeVariant}
-                                                        className={
-                                                            badgeClassName
-                                                        }
+                                                        className={`h-4 px-1.5 text-[9px] ${badgeClassName}`}
                                                     >
                                                         {stock}
                                                     </Badge>
@@ -441,9 +439,9 @@ export default function Index({
                                             </CardDescription>
                                         </CardHeader>
 
-                                        <CardContent className="bg-card px-4 pb-4">
+                                        <CardContent className="bg-card px-2.5 pb-2.5">
                                             <div className="flex items-baseline gap-1">
-                                                <span className="text-md font-bold tracking-tight text-primary uppercase">
+                                                <span className="text-sm font-bold tracking-tight text-primary uppercase">
                                                     {formatCurrency(item.price)}
                                                 </span>
                                             </div>
@@ -453,7 +451,7 @@ export default function Index({
                             })
                         ) : (
                             <div className="col-span-full py-10 text-center text-muted-foreground">
-                                Produk tidak ditemukan
+                                Product not found
                             </div>
                         )}
                     </div>
@@ -471,11 +469,11 @@ export default function Index({
                                 disabled={items.meta.current_page === 1}
                                 className="rounded-xl"
                             >
-                                Sebelumnya
+                                Previous
                             </Button>
 
                             <span className="text-sm font-medium text-muted-foreground">
-                                Halaman {items.meta.current_page} dari{' '}
+                                Page {items.meta.current_page} of{' '}
                                 {items.meta.last_page}
                             </span>
 
@@ -493,7 +491,7 @@ export default function Index({
                                 }
                                 className="rounded-xl"
                             >
-                                Selanjutnya
+                                Next
                             </Button>
                         </div>
                     )}
@@ -511,10 +509,11 @@ export default function Index({
                                 </div>
                                 <div>
                                     <CardTitle className="text-xl font-bold">
-                                        Ringkasan Pesanan
+                                        Order Summary
                                     </CardTitle>
                                     <CardDescription className="text-xs">
-                                        {cart ? cart.length : '0'} item terpilih
+                                        {cart ? cart.length : '0'} items
+                                        selected
                                     </CardDescription>
                                 </div>
                             </div>
@@ -538,11 +537,10 @@ export default function Index({
                                         <ShoppingCart className="h-16 w-16 text-muted-foreground/30" />
                                     </div>
                                     <h3 className="text-lg font-semibold text-muted-foreground/80">
-                                        Belum ada item
+                                        No items yet
                                     </h3>
                                     <p className="mt-1 max-w-[200px] text-center text-sm text-muted-foreground/50">
-                                        Pilih produk untuk ditambahkan ke
-                                        pesanan
+                                        Select products to add to the order
                                     </p>
                                 </div>
                             ) : (
@@ -576,7 +574,7 @@ export default function Index({
                                             {/* Baris Bawah: Aksesoris Control (+/-) */}
                                             <div className="mt-1 flex items-center justify-between border-t border-muted/40 pt-2">
                                                 <span className="text-xs font-medium text-muted-foreground">
-                                                    Banyaknya:
+                                                    Quantity:
                                                 </span>
                                                 <div className="flex flex-row items-center gap-1 rounded-lg bg-muted/40 p-1">
                                                     {/* Kurangi Item */}
@@ -630,7 +628,7 @@ export default function Index({
                                             variant="secondary"
                                             className="h-4 px-1 text-[10px]"
                                         >
-                                            PPN
+                                            VAT
                                         </Badge>
                                     </span>
                                     <span>{formatCurrency(tax)}</span>
