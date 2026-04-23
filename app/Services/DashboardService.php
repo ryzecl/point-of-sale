@@ -16,11 +16,11 @@ class DashboardService
     public function getBasicStats(): array
     {
         return [
-            'todayRevenue' => Order::whereDate('created_at', today())->sum('grand_total'),
-            'ThisMonthRevenue' => Order::whereMonth('created_at', Carbon::now()->month)
-                ->whereYear('created_at', Carbon::now()->year)
+            'todayRevenue' => Order::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) = ?", [today()->toDateString()])->sum('grand_total'),
+            'ThisMonthRevenue' => Order::whereRaw("MONTH(CONVERT_TZ(created_at, '+00:00', '+07:00')) = ?", [Carbon::now()->month])
+                ->whereRaw("YEAR(CONVERT_TZ(created_at, '+00:00', '+07:00')) = ?", [Carbon::now()->year])
                 ->sum('grand_total'),
-            'totalOrdersToday' => Order::whereDate('created_at', today())->count(),
+            'totalOrdersToday' => Order::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) = ?", [today()->toDateString()])->count(),
             'averageRevenue' => Order::average('grand_total'),
             'lowStockCount' => Item::where('stock', '>', 0)->whereColumn('stock', '<=', 'min_stock')->count(),
             'outOfStockCount' => Item::where('stock', 0)->count(),
@@ -34,16 +34,20 @@ class DashboardService
     {
         [$start, $end] = $this->getDateRange($period, $date);
 
+        // Convert boundaries to UTC for database query to maintain performance (index usage)
+        $startUtc = $start->copy()->setTimezone('UTC');
+        $endUtc = $end->copy()->setTimezone('UTC');
+
         // Base query — only transactions that are paid (or specific status)
-        $baseQuery = Order::whereBetween('created_at', [$start, $end])
+        $baseQuery = Order::whereBetween('created_at', [$startUtc, $endUtc])
             ->whereNotIn('status', ['cancel', 'expire']);
 
         // === TREND DATA ===
         $selectRaw = match ($period) {
-            'daily'   => "HOUR(created_at) as time_key",
-            'weekly'  => "DATE(created_at) as time_key",
-            'monthly' => "DAY(created_at) as time_key",
-            'yearly'  => "MONTH(created_at) as time_key",
+            'daily'   => "HOUR(CONVERT_TZ(created_at, '+00:00', '+07:00')) as time_key",
+            'weekly'  => "DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) as time_key",
+            'monthly' => "DAY(CONVERT_TZ(created_at, '+00:00', '+07:00')) as time_key",
+            'yearly'  => "MONTH(CONVERT_TZ(created_at, '+00:00', '+07:00')) as time_key",
         };
 
         $trendRaw = (clone $baseQuery)
@@ -70,7 +74,7 @@ class DashboardService
         $topItems = OrderItem::query()
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->join('items', 'items.id', '=', 'order_items.item_id')
-            ->whereBetween('orders.created_at', [$start, $end])
+            ->whereBetween('orders.created_at', [$startUtc, $endUtc])
             ->whereNotIn('orders.status', ['cancel', 'expire'])
             ->selectRaw('items.name, items.img, SUM(order_items.quantity) as total_qty, SUM(order_items.total_price) as total_revenue')
             ->groupBy('items.id', 'items.name', 'items.img')
