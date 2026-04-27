@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/format-utils';
 
 interface SummaryData {
-    totalSales: number;
+    totalRevenue: number;
     totalTransactions: number;
     totalDiscount: number;
     averageTransaction: number;
@@ -16,8 +16,8 @@ interface SummaryCardsProps {
 export default function SummaryCards({ summary }: SummaryCardsProps) {
     const cards = [
         {
-            title: 'Total Sales',
-            value: formatCurrency(summary.totalSales),
+            title: 'Total Revenue',
+            value: formatCurrency(summary.totalRevenue),
             icon: DollarSign,
             color: 'text-blue-600',
             bg: 'bg-blue-100',

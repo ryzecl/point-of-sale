@@ -9,58 +9,71 @@ use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
 
+
 class ReportController extends Controller
 {
     public function __construct(protected ReportService $reportService) {}
 
-    public function index(Request $request)
+    /**
+     * Normalize & clean filters (DRY)
+     */
+    private function normalizeFilters(Request $request): array
     {
         $filters = $request->only(['start_date', 'end_date', 'payment_method']);
 
+        // default hari ini
         if (empty($filters['start_date'])) {
             $filters['start_date'] = now()->format('Y-m-d');
             $filters['end_date'] = now()->format('Y-m-d');
         }
 
-        $query = $this->reportService->buildQuery($filters);
-        $summary = $this->reportService->getSummary($filters);
-        $orders = $query->latest()->paginate(15)->withQueryString();
+        // normalize payment method
+        if (empty($filters['payment_method']) || $filters['payment_method'] === 'null') {
+            $filters['payment_method'] = null;
+        }
+
+        return $filters;
+    }
+
+
+    public function index(Request $request)
+    {
+        $filters = $this->normalizeFilters($request);
+
+        $report = $this->reportService->getReportData($filters);
+
+        // pagination khusus (biar tidak ambil semua data)
+        $orders = $this->reportService
+            ->buildQuery($filters)
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
 
         return Inertia::render('report/Index', [
             'filters' => $filters,
-            'summary' => $summary,
-            'orders'  => $orders,
+            'summary' => [
+                'totalTransactions' => $report['totalTransactions'],
+                'totalRevenue' => $report['totalRevenue'],
+                'totalDiscount' => $report['totalDiscount'],
+                'averageTransaction' => $report['averageTransaction'],
+            ],
+            'charts' => [
+                'peakHours' => $report['peakHours'],
+                'paymentMethods' => $report['paymentMethods'],
+                'paymentRevenue' => $report['paymentRevenue'],
+                'dailyTrend' => $report['dailyTrend'],
+            ],
+            'orders' => $orders,
         ]);
     }
 
     public function export(Request $request)
     {
-        $filters = $request->all();
-
-        // Pastikan jika ada string kosong (''), kita anggap null agar logic default jalan
-        $startDate = $request->filled('start_date') ? $request->start_date : null;
-        $endDate = $request->filled('end_date') ? $request->end_date : null;
-
-        // TAMBAHKAN LOGIKA PEMBERSIHAN INI
-        $paymentMethod = $request->payment_method;
-        if ($paymentMethod === 'null' || empty($paymentMethod)) {
-            $paymentMethod = null;
-        }
-
-        if (!$startDate) {
-            $startDate = now()->format('Y-m-d');
-            $endDate = now()->format('Y-m-d');
-        }
-
-        // Masukkan kembali ke array filters untuk dikirim ke Export Class
-        $filters['start_date'] = $startDate;
-        $filters['end_date'] = $endDate;
-        $filters['payment_method'] = $paymentMethod;
-
-        Log::info("Export filters: ", $filters);
-
+        $filters = $this->normalizeFilters($request);
         $fileName = 'Sales_Report_' . now()->format('Ymd_His') . '.xlsx';
-
-        return Excel::download(new SalesExport($filters, $this->reportService), $fileName);
+        return Excel::download(
+            new SalesExport($filters, $this->reportService),
+            $fileName
+        );
     }
 }

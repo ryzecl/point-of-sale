@@ -11,7 +11,7 @@ interface Props {
         payment_method: string;
     };
     summary: {
-        totalSales: number;
+        totalRevenue: number;
         totalTransactions: number;
         totalDiscount: number;
         averageTransaction: number;
