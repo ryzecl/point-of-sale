@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Enums\OrderStatus;
 use App\Models\Item;
 use App\Models\Order;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
@@ -161,12 +163,34 @@ class OrderService
 
     public function cancelOrder(Order $order): bool
     {
-        if ($order->status !== \App\Enums\OrderStatus::PENDING) {
+        if ($order->status !== OrderStatus::PENDING) {
             return false;
         }
+        try {
+            DB::transaction(function () use ($order) {
+                // Gunakan fungsi baru kita
+                $this->restoreStock($order);
 
-        $order->status = \App\Enums\OrderStatus::CANCEL;
-        return $order->save();
+                $order->update(['status' => OrderStatus::CANCEL]);
+            });
+            return true;
+        } catch (\Exception $e) {
+            Log::error("Gagal cancel order: " . $e->getMessage());
+            return false;
+        }
+    }
+    /**
+     * Fungsi umum untuk mengembalikan stok
+     */
+    public function restoreStock(Order $order): void
+    {
+        $order->load('orderItems');
+        foreach ($order->orderItems as $orderItem) {
+            $item = Item::lockForUpdate()->find($orderItem->item_id);
+            if ($item) {
+                $item->increment('stock', $orderItem->quantity);
+            }
+        }
     }
 
     private function generateOrderCode(): string

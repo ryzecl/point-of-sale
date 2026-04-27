@@ -5,14 +5,17 @@ namespace App\Http\Controllers;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Services\MidtransService;
+use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class MidtransWebhookController extends Controller
 {
     public function __construct(
-        private readonly MidtransService $midtransService
+        private readonly MidtransService $midtransService,
+        private readonly OrderService $orderService
     ) {}
 
     public function handle(Request $request): JsonResponse
@@ -49,8 +52,8 @@ class MidtransWebhookController extends Controller
                 'capture' => $this->handleCapture($order, $fraudStatus, $transactionId),
                 'settlement' => $this->updateOrderStatus($order, OrderStatus::SETTLEMENT, $transactionId),
                 'pending' => $this->updateOrderStatus($order, OrderStatus::PENDING, $transactionId),
-                'deny', 'cancel' => $this->updateOrderStatus($order, OrderStatus::CANCEL, $transactionId),
-                'expire' => $this->updateOrderStatus($order, OrderStatus::EXPIRE, $transactionId),
+                'deny', 'cancel' => $this->handleCancellation($order, OrderStatus::CANCEL, $transactionId),
+                'expire' => $this->handleCancellation($order, OrderStatus::EXPIRE, $transactionId),
                 default => Log::info("Midtrans: Unhandled status '{$transactionStatus}' for {$orderId}"),
             };
 
@@ -58,6 +61,22 @@ class MidtransWebhookController extends Controller
         } catch (\Exception $e) {
             Log::error('Midtrans Webhook Error: ' . $e->getMessage());
             return response()->json(['message' => 'Error'], 500);
+        }
+    }
+
+    private function handleCancellation(Order $order, OrderStatus $status, ?string $transactionId): void
+    {
+        try {
+            DB::transaction(function () use ($order, $status, $transactionId) {
+                $this->orderService->restoreStock($order);
+                $order->update([
+                    'status' => $status,
+                    'midtrans_transaction_id' => $transactionId,
+                ]);
+            });
+            Log::info("Order {$order->order_code} cancelled/expired and stock restored.");
+        } catch (\Exception $e) {
+            Log::error("Webhook Cancellation Error: " . $e->getMessage());
         }
     }
 
