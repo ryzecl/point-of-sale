@@ -36,7 +36,7 @@ interface ReportDataTableProps {
 
 export default function ReportDataTable({ orders }: ReportDataTableProps) {
     return (
-        <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+        <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
             <Table>
                 <TableHeader>
                     <TableRow className="bg-muted/50">
@@ -64,21 +64,31 @@ export default function ReportDataTable({ orders }: ReportDataTableProps) {
                                         href={`/orders/${order.id}`}
                                         className="text-blue-600 hover:underline"
                                     >
-                                        #{order.order_code}
+                                        {order.order_code}
                                     </Link>
                                 </TableCell>
                                 <TableCell>
-                                    {format(new Date(order.created_at), 'dd MMM yyyy HH:mm')}
+                                    {format(
+                                        new Date(order.created_at),
+                                        'dd MMM yyyy HH:mm',
+                                    )}
                                 </TableCell>
-                                <TableCell>{order.customer_name || 'Walk-in'}</TableCell>
+                                <TableCell>
+                                    {order.customer_name || 'Walk-in'}
+                                </TableCell>
                                 <TableCell>{order.user?.name || '-'}</TableCell>
                                 <TableCell>
-                                    <Badge variant="outline" className="capitalize">
+                                    <Badge
+                                        variant="outline"
+                                        className="capitalize"
+                                    >
                                         {order.payment_method}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right text-red-500">
-                                    {order.discount > 0 ? `-${formatCurrency(order.discount)}` : '-'}
+                                    {order.discount > 0
+                                        ? `-${formatCurrency(order.discount)}`
+                                        : '-'}
                                 </TableCell>
                                 <TableCell className="text-right font-bold">
                                     {formatCurrency(order.grand_total)}
@@ -88,20 +98,20 @@ export default function ReportDataTable({ orders }: ReportDataTableProps) {
                     )}
                 </TableBody>
             </Table>
-            
+
             {/* Simple Pagination Info */}
-            <div className="flex items-center justify-between px-4 py-4 border-t text-sm text-muted-foreground">
-                <div>
-                    Showing page {orders.current_page}
-                </div>
+            <div className="flex items-center justify-between border-t px-4 py-4 text-sm text-muted-foreground">
+                <div>Showing page {orders.current_page}</div>
                 <div className="flex gap-2">
                     {orders.links.map((link, idx) => (
                         <Link
                             key={idx}
                             href={link.url || '#'}
-                            className={`px-3 py-1 rounded-md border ${
-                                link.active ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'
-                            } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`rounded-md border px-3 py-1 ${
+                                link.active
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-background hover:bg-muted'
+                            } ${!link.url ? 'cursor-not-allowed opacity-50' : ''}`}
                             dangerouslySetInnerHTML={{ __html: link.label }}
                         />
                     ))}

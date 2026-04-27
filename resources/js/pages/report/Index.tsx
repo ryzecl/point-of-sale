@@ -28,6 +28,8 @@ export default function Index({ filters, summary, orders }: Props) {
         });
     };
 
+    console.log('current filters: ', filters);
+
     return (
         <>
             <Head title="Sales Report" />
@@ -49,7 +51,7 @@ export default function Index({ filters, summary, orders }: Props) {
                     </div>
 
                     <a
-                        href={`/reports/export-sales?${new URLSearchParams(filters as any).toString()}`}
+                        href={`/reports/export-sales?${new URLSearchParams(filters as any).toString()}&t${new Date().getTime()}`}
                         className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
                     >
                         <Download className="size-4" /> Export to Excel

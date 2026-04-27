@@ -13,15 +13,19 @@ class ReportService
     public function buildQuery(array $filters)
     {
         return Order::query()
-            ->with('user:id,name') // Eager loading untuk optimasi N+1
+            ->with('user') // Ambil semua kolom user dulu agar lebih aman
             ->whereIn('status', [
                 OrderStatus::SETTLEMENT,
                 OrderStatus::COOKED,
                 OrderStatus::SERVED,
-            ]) // Mengambil semua pesanan yang sudah dibayar/proses/selesai
-            ->when(!empty($filters['start_date']), fn ($query) => $query->whereDate('created_at', '>=', $filters['start_date']))
-            ->when(!empty($filters['end_date']), fn ($query) => $query->whereDate('created_at', '<=', $filters['end_date']))
-            ->when(!empty($filters['payment_method']), fn ($query) => $query->where('payment_method', $filters['payment_method']));
+            ])
+            ->when(!empty($filters['start_date']), function ($query) use ($filters) {
+                $query->where('created_at', '>=', $filters['start_date'] . ' 00:00:00');
+            })
+            ->when(!empty($filters['end_date']), function ($query) use ($filters) {
+                $query->where('created_at', '<=', $filters['end_date'] . ' 23:59:59');
+            })
+            ->when(!empty($filters['payment_method']), fn($query) => $query->where('payment_method', $filters['payment_method']));
     }
 
     /**

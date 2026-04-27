@@ -1,5 +1,5 @@
 import { Search, RotateCcw } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,6 +24,10 @@ interface ReportFilterProps {
 
 export default function ReportFilter({ params, onChange }: ReportFilterProps) {
     const [localParams, setLocalParams] = useState(params);
+
+    useEffect(() => {
+        setLocalParams(params);
+    }, [params]);
 
     const handleApply = () => {
         onChange(localParams);
@@ -79,14 +83,13 @@ export default function ReportFilter({ params, onChange }: ReportFilterProps) {
                             })
                         }
                     >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                             <SelectValue placeholder="All Methods" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Methods</SelectItem>
                             <SelectItem value="cash">Cash</SelectItem>
                             <SelectItem value="transfer">Transfer</SelectItem>
-                            <SelectItem value="midtrans">Midtrans</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

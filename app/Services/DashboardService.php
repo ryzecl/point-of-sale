@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\DB;
 
 class DashboardService
 {
@@ -15,12 +16,16 @@ class DashboardService
      */
     public function getBasicStats(): array
     {
+        $todayStart = now('Asia/Jakarta')->startOfDay()->utc();
+        $todayEnd = now('Asia/Jakarta')->endOfDay()->utc();
+
+        $monthStart = now('Asia/Jakarta')->startOfMonth()->utc();
+        $monthEnd = now('Asia/Jakarta')->endOfMonth()->utc();
+
         return [
-            'todayRevenue' => Order::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) = ?", [today()->toDateString()])->sum('grand_total'),
-            'ThisMonthRevenue' => Order::whereRaw("MONTH(CONVERT_TZ(created_at, '+00:00', '+07:00')) = ?", [Carbon::now()->month])
-                ->whereRaw("YEAR(CONVERT_TZ(created_at, '+00:00', '+07:00')) = ?", [Carbon::now()->year])
-                ->sum('grand_total'),
-            'totalOrdersToday' => Order::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) = ?", [today()->toDateString()])->count(),
+            'todayRevenue' => Order::whereBetween('created_at', [$todayStart, $todayEnd])->sum('grand_total'),
+            'ThisMonthRevenue' => Order::whereBetween('created_at', [$monthStart, $monthEnd])->sum('grand_total'),
+            'totalOrdersToday' => Order::whereBetween('created_at', [$todayStart, $todayEnd])->count(),
             'averageRevenue' => Order::average('grand_total'),
             'lowStockCount' => Item::where('stock', '>', 0)->whereColumn('stock', '<=', 'min_stock')->count(),
             'outOfStockCount' => Item::where('stock', 0)->count(),
@@ -43,12 +48,7 @@ class DashboardService
             ->whereNotIn('status', ['cancel', 'expire']);
 
         // === TREND DATA ===
-        $selectRaw = match ($period) {
-            'daily'   => "HOUR(CONVERT_TZ(created_at, '+00:00', '+07:00')) as time_key",
-            'weekly'  => "DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) as time_key",
-            'monthly' => "DAY(CONVERT_TZ(created_at, '+00:00', '+07:00')) as time_key",
-            'yearly'  => "MONTH(CONVERT_TZ(created_at, '+00:00', '+07:00')) as time_key",
-        };
+        $selectRaw = $this->getTrendSelectRaw($period);
 
         $trendRaw = (clone $baseQuery)
             ->selectRaw("{$selectRaw}, SUM(grand_total) as revenue, COUNT(*) as orders")
@@ -213,5 +213,29 @@ class DashboardService
         };
 
         return $slots;
+    }
+
+    /**
+     * Get the trend select raw string based on database driver.
+     */
+    private function getTrendSelectRaw(string $period): string
+    {
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+
+        if ($isSqlite) {
+            return match ($period) {
+                'daily'   => "strftime('%H', created_at) as time_key",
+                'weekly'  => "date(created_at) as time_key",
+                'monthly' => "strftime('%d', created_at) as time_key",
+                'yearly'  => "strftime('%m', created_at) as time_key",
+            };
+        }
+
+        return match ($period) {
+            'daily'   => "HOUR(CONVERT_TZ(created_at, '+00:00', '+07:00')) as time_key",
+            'weekly'  => "DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) as time_key",
+            'monthly' => "DAY(CONVERT_TZ(created_at, '+00:00', '+07:00')) as time_key",
+            'yearly'  => "MONTH(CONVERT_TZ(created_at, '+00:00', '+07:00')) as time_key",
+        };
     }
 }
