@@ -17,6 +17,7 @@ class UserController extends Controller
 
     public function __construct(UserService $userService)
     {
+        // test ssh key github (tadinya pake gpg males jir)
         $this->userService = $userService;
     }
 
