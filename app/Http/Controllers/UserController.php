@@ -17,7 +17,6 @@ class UserController extends Controller
 
     public function __construct(UserService $userService)
     {
-        // test ilmu aja
         $this->userService = $userService;
     }
 
