@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
+use Illuminate\Support\Facades\Gate;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -29,6 +31,11 @@ class AppServiceProvider extends ServiceProvider
         Builder::macro('latestDeterministic', function ($column = 'created_at') {
             /** @var \Illuminate\Database\Eloquent\Builder $this */
             return $this->orderBy($column, 'desc')->orderBy('id', 'desc');
+        });
+
+        // Super Admin bypass
+        Gate::before(function ($user, $ability) {
+            return $user->hasRole('super_admin') ? true : null;
         });
     }
 

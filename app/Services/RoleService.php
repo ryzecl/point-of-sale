@@ -11,6 +11,10 @@ class RoleService
      */
     public function createRole(array $data): Role
     {
+        if (isset($data['role_name'])) {
+            $data['name'] = $data['role_name'];
+            unset($data['role_name']);
+        }
         return Role::create($data);
     }
 
@@ -20,6 +24,10 @@ class RoleService
     public function updateRole($role_id, array $data): Role
     {
         $role = Role::findOrFail($role_id);
+        if (isset($data['role_name'])) {
+            $data['name'] = $data['role_name'];
+            unset($data['role_name']);
+        }
         $role->update($data);
         return $role;
     }

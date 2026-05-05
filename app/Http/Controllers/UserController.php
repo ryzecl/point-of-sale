@@ -24,7 +24,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->integer('perPage', 25);
-        $query = User::with('role');
+        $query = User::with('roles');
 
         return Inertia::render('user/Index', [
             'users' => UserResource::collection($query->paginate($perPage)),
@@ -42,7 +42,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         return Inertia::render('user/Show', [
-            'user' => new UserResource($user->load('role'))
+            'user' => new UserResource($user->load('roles'))
         ]);
     }
 

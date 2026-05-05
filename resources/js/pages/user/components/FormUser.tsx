@@ -39,7 +39,7 @@ const FormUser = ({ user, roles }: FormUserProps) => {
             name: user?.name || '',
             email: user?.email || '',
             password: '',
-            role_id: user?.role_id?.toString() || '',
+            role: user?.role?.role_name || '',
         });
 
     useEffect(() => {
@@ -48,7 +48,7 @@ const FormUser = ({ user, roles }: FormUserProps) => {
                 name: user.name || '',
                 email: user.email || '',
                 password: '',
-                role_id: user.role_id?.toString() || '',
+                role: user.role?.role_name || '',
             });
         }
     }, [open, user, setData]);
@@ -170,13 +170,13 @@ const FormUser = ({ user, roles }: FormUserProps) => {
                             <InputError message={errors.password} />
                         </Field>
                         <Field>
-                            <Label htmlFor="role_id" required>
+                            <Label htmlFor="role" required>
                                 Role
                             </Label>
                             <Select
-                                value={data.role_id}
+                                value={data.role}
                                 onValueChange={(value) =>
-                                    setData('role_id', value)
+                                    setData('role', value)
                                 }
                                 required
                             >
@@ -187,14 +187,14 @@ const FormUser = ({ user, roles }: FormUserProps) => {
                                     {roles.map((role) => (
                                         <SelectItem
                                             key={role.id}
-                                            value={role.id.toString()}
+                                            value={role.role_name}
                                         >
                                             {role.role_name}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <InputError message={errors.role_id} />
+                            <InputError message={errors.role} />
                         </Field>
                     </FieldGroup>
                     <DialogFooter className="gap-2 sm:gap-0">

@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
 
+import { usePermission } from '@/hooks/usePermission';
+
 export default function Profile({
     mustVerifyEmail,
     status,
@@ -18,6 +20,7 @@ export default function Profile({
     status?: string;
 }) {
     const { auth } = usePage().props;
+    const { hasRole } = usePermission();
 
     return (
         <>
@@ -130,7 +133,7 @@ export default function Profile({
                 </Form>
             </div>
 
-            {auth.user.role?.role_name === 'superadmin' && <DeleteUser />}
+            {hasRole('super_admin') && <DeleteUser />}
         </>
     );
 }

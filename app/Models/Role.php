@@ -2,25 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Permission\Models\Role as SpatieRole;
 
-class Role extends Model
+class Role extends SpatieRole
 {
-    use HasFactory, SoftDeletes;
-
-    protected $fillable = ['role_name', 'description'];
-
-    protected $dates = ['deleted_at'];
-
-    public function setRoleNameAttribute($value)
+    public function setNameAttribute($value)
     {
-        $this->attributes['role_name'] = strtolower($value);
-    }
-
-    public function users()
-    {
-        return $this->hasMany(User::class);
+        $this->attributes['name'] = strtolower($value);
     }
 }

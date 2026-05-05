@@ -3,6 +3,7 @@ import { EditIcon, Plus } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
     DialogClose,
@@ -20,23 +21,24 @@ import type { Role } from '@/types';
 
 interface FormRoleProps {
     role?: Role;
+    all_permissions: string[];
 }
 
-const FormRole = ({ role }: FormRoleProps) => {
+const FormRole = ({ role, all_permissions }: FormRoleProps) => {
     const isEdit = !!role;
     const [open, setOpen] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset, clearErrors } =
         useForm({
             role_name: role?.role_name || '',
-            description: role?.description || '',
+            permissions: role?.permissions || [] as string[],
         });
 
     useEffect(() => {
         if (open && role) {
             setData({
                 role_name: role.role_name || '',
-                description: role.description || '',
+                permissions: role.permissions || [],
             });
         }
     }, [open, role, setData]);
@@ -44,26 +46,30 @@ const FormRole = ({ role }: FormRoleProps) => {
     const handleOpenChange = (isOpen: boolean) => {
         setOpen(isOpen);
 
-        // Jika dialog ditutup, hapus semua error dan reset field ke awal
         if (!isOpen) {
             clearErrors();
             reset();
         }
     };
 
+    const handlePermissionChange = (permission: string, checked: boolean) => {
+        const newPermissions = checked
+            ? [...data.permissions, permission]
+            : data.permissions.filter((p) => p !== permission);
+        setData('permissions', newPermissions);
+    };
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (isEdit) {
-            // Mode Edit → PUT /roles/{id}
             put(`/roles/${role.id}`, {
                 onSuccess: () => {
                     reset();
-                    setOpen(false); // tutup dialog setelah berhasil
+                    setOpen(false);
                 },
             });
         } else {
-            // Mode Add → POST /roles
             post('/roles', {
                 onSuccess: () => {
                     reset();
@@ -91,18 +97,17 @@ const FormRole = ({ role }: FormRoleProps) => {
                     )}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-sm">
+            <DialogContent className="sm:max-w-lg">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
                         <DialogTitle>Form Role</DialogTitle>
                         <DialogDescription>
-                            Add role for your company here. Click save when
-                            you&apos;re done.
+                            Manage roles and their permissions here.
                         </DialogDescription>
                     </DialogHeader>
-                    <FieldGroup>
+                    <FieldGroup className="mt-4">
                         <Field>
-                            <Label htmlFor="name-1" required>
+                            <Label htmlFor="role_name" required>
                                 Role Name
                             </Label>
                             <Input
@@ -116,20 +121,30 @@ const FormRole = ({ role }: FormRoleProps) => {
                             />
                             <InputError message={errors.role_name} />
                         </Field>
-                        <Field>
-                            <Label htmlFor="username-1">Description</Label>
-                            <Input
-                                id="description"
-                                value={data.description}
-                                onChange={(e) =>
-                                    setData('description', e.target.value)
-                                }
-                                placeholder="Deskripsi role..."
-                            />
-                            <InputError message={errors.description} />
-                        </Field>
+
+                        <div className="space-y-4">
+                            <Label>Permissions</Label>
+                            <div className="grid grid-cols-2 gap-4 rounded-md border p-4 max-h-[300px] overflow-y-auto">
+                                {all_permissions.map((permission) => (
+                                    <div key={permission} className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`perm-${permission}`}
+                                            checked={data.permissions.includes(permission)}
+                                            onCheckedChange={(checked) => handlePermissionChange(permission, checked as boolean)}
+                                        />
+                                        <Label
+                                            htmlFor={`perm-${permission}`}
+                                            className="text-sm font-normal cursor-pointer capitalize"
+                                        >
+                                            {permission.replace(/_/g, ' ')}
+                                        </Label>
+                                    </div>
+                                ))}
+                            </div>
+                            <InputError message={errors.permissions} />
+                        </div>
                     </FieldGroup>
-                    <DialogFooter>
+                    <DialogFooter className="mt-6">
                         <DialogClose asChild>
                             <Button variant="outline">Cancel</Button>
                         </DialogClose>

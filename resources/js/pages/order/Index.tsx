@@ -285,7 +285,7 @@ export default function Index({ orders, filters = {}, stats }: IndexProps) {
                 </div>
 
                 <DataTable
-                    columns={columns(auth.user)}
+                    columns={columns(auth.roles)}
                     data={orders.data}
                     searchPlaceholder="Search order code..."
                     searchValue={search}

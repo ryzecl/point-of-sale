@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Item;
-use App\Models\Role;
 use App\Models\User;
 use App\Services\MidtransService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -22,8 +21,12 @@ class OrderTest extends TestCase
         parent::setUp();
 
         // 1. Persiapkan Role dan User
-        Role::factory()->create(['id' => 1, 'role_name' => 'cashier']);
-        $this->cashier = User::factory()->create(['role_id' => 1]);
+        $role = \Spatie\Permission\Models\Role::create(['name' => 'cashier']);
+        $permission = \Spatie\Permission\Models\Permission::create(['name' => 'pos.access']);
+        $role->givePermissionTo($permission);
+        
+        $this->cashier = User::factory()->create();
+        $this->cashier->assignRole($role);
 
         // 2. Persiapkan Item dengan kategori (karena ItemFactory pake category_id 1-4)
         // Kita buat kategori dulu agar tidak error constraint

@@ -28,9 +28,10 @@ class RoleStoreRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('roles', 'role_name')->ignore($this->route('role_id'))
+                Rule::unique('roles', 'name')->ignore($this->route('role_id'))
             ],
-            'description' => 'nullable|string',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'string|exists:permissions,name',
         ];
     }
 }

@@ -1,21 +1,25 @@
-import type { Role } from './models';
 
 export type User = {
     id: number;
     name: string;
     email: string;
-    role_id: number;
-    role?: Role;
     avatar?: string;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;
     created_at: string;
     updated_at: string;
+    role?: {
+        id: number;
+        role_name: string;
+    };
+    roles?: string[];
     [key: string]: unknown;
 };
 
 export type Auth = {
     user: User;
+    roles: string[];
+    permissions: string[];
 };
 
 export type TwoFactorSetupData = {

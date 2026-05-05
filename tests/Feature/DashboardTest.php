@@ -9,6 +9,9 @@ test('guests are redirected to the login page', function () {
 
 test('authenticated users can visit the dashboard', function () {
     $user = User::factory()->create();
+    $permission = \Spatie\Permission\Models\Permission::create(['name' => 'dashboard.view']);
+    $user->givePermissionTo($permission);
+    
     $this->actingAs($user);
 
     $response = $this->get(route('dashboard'));

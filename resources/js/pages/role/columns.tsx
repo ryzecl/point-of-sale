@@ -17,7 +17,10 @@ import { Button } from '@/components/ui/button';
 import type { Role } from '@/types';
 import FormRole from './components/FormRole';
 
-export const columns = (isSuperAdmin: boolean): ColumnDef<Role>[] => [
+export const columns = (
+    isSuperAdmin: boolean,
+    all_permissions: string[],
+): ColumnDef<Role>[] => [
     {
         id: 'No',
         header: 'No',
@@ -34,11 +37,20 @@ export const columns = (isSuperAdmin: boolean): ColumnDef<Role>[] => [
         },
     },
     {
-        accessorKey: 'description',
-        header: 'Description',
-        meta: {
-            className: 'capitalize',
-        },
+        accessorKey: 'permissions',
+        header: 'Permissions',
+        cell: ({ row }) => (
+            <div className="flex flex-wrap gap-1 max-w-[400px]">
+                {row.original.permissions?.map((p) => (
+                    <span
+                        key={p}
+                        className="rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium"
+                    >
+                        {p.replace(/_/g, ' ')}
+                    </span>
+                ))}
+            </div>
+        ),
     },
     {
         id: 'actions',
@@ -51,7 +63,7 @@ export const columns = (isSuperAdmin: boolean): ColumnDef<Role>[] => [
 
             return (
                 <div className="flex items-center justify-center gap-1">
-                    <FormRole role={role} />
+                    <FormRole role={role} all_permissions={all_permissions} />
                     {isSuperAdmin && (
                         <AlertDialog>
                             <AlertDialogTrigger asChild>

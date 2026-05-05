@@ -1,5 +1,6 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import React from 'react';
+import { usePermission } from '@/hooks/usePermission';
 import { DataTable } from '@/components/ui/data-table';
 import type { Category } from '@/types';
 import { columns } from './columns';
@@ -10,8 +11,8 @@ interface IndexProps {
 }
 
 export default function Index({ categories }: IndexProps) {
-    const { auth } = usePage<any>().props;
-    const isSuperAdmin = auth.user.role.role_name === 'superadmin';
+    const { hasRole } = usePermission();
+    const isSuperAdmin = hasRole('super_admin');
 
     return (
         <>

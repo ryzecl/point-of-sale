@@ -12,9 +12,9 @@ import {
 } from '@/components/ui/tooltip';
 import { formatRelativeTime, formatDateTime } from '@/lib/date-utils';
 import { formatCurrency } from '@/lib/format-utils';
-import type { Order, User } from '@/types';
+import type { Order } from '@/types';
 
-export const columns = (user: User): ColumnDef<Order>[] => [
+export const columns = (roles: string[]): ColumnDef<Order>[] => [
     {
         id: 'No',
         header: 'No',
@@ -140,7 +140,11 @@ export const columns = (user: User): ColumnDef<Order>[] => [
         },
         cell: ({ row }) => {
             const order = row.original;
-            const role = user?.role?.role_name;
+
+            const isSuperAdmin = roles.includes('super_admin');
+            const isAdmin = roles.includes('admin');
+            const isCashier = roles.includes('cashier');
+            const isChef = roles.includes('chef');
 
             const handleUpdateStatus = () => {
                 router.post(`/orders/${order.id}/status`);
@@ -172,9 +176,7 @@ export const columns = (user: User): ColumnDef<Order>[] => [
                         </Tooltip>
 
                         {/* Logic Admin / Cashier */}
-                        {(role === 'superadmin' ||
-                            role === 'admin' ||
-                            role === 'cashier') && (
+                        {(isSuperAdmin || isAdmin || isCashier) && (
                             <>
                                 {order.status === 'pending' &&
                                     order.payment_method === 'cash' && (
@@ -235,7 +237,7 @@ export const columns = (user: User): ColumnDef<Order>[] => [
                         )}
 
                         {/* Logic Chef */}
-                        {role === 'chef' && order.status === 'settlement' && (
+                        {isChef && order.status === 'settlement' && (
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button

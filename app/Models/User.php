@@ -11,12 +11,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-#[Fillable(['name', 'email', 'password', 'role_id'])]
+use Spatie\Permission\Traits\HasRoles;
+
+#[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable, HasRoles;
 
     /**
      * Get the attributes that should be cast.
@@ -40,31 +42,5 @@ class User extends Authenticatable
     public function setEmailAttribute($value)
     {
         $this->attributes['email'] = strtolower($value);
-    }
-
-    public function role()
-    {
-        return $this->belongsTo(Role::class);
-    }
-
-    /**
-     * Check if a user has a specific role or one of many roles.
-     *
-     * @param string|array $roles
-     * @return bool
-     */
-    public function hasRole(string|array $roles): bool
-    {
-        if (!$this->relationLoaded('role')) {
-            $this->load('role');
-        }
-
-        $userRole = $this->role->role_name;
-
-        if (is_array($roles)) {
-            return in_array($userRole, $roles);
-        }
-
-        return $userRole === $roles;
     }
 }

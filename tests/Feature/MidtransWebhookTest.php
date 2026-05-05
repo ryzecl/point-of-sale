@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
-use App\Models\Role;
 use App\Models\User;
 use App\Services\MidtransService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,8 +20,9 @@ class MidtransWebhookTest extends TestCase
         parent::setUp();
 
         // Persiapkan data dasar
-        Role::factory()->create(['id' => 1, 'role_name' => 'cashier']);
-        $user = User::factory()->create(['role_id' => 1]);
+        $role = \Spatie\Permission\Models\Role::create(['name' => 'cashier']);
+        $user = User::factory()->create();
+        $user->assignRole($role);
 
         $this->order = Order::create([
             'order_code' => 'TRX-TEST-001',

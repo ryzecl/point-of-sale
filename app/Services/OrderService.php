@@ -144,15 +144,13 @@ class OrderService
 
     public function updateStatus(Order $order, $user): bool
     {
-        $role = $user->role->role_name;
-
-        if ($role == 'admin' || $role == 'cashier') {
+        if ($user->hasRole(['super_admin', 'admin', 'cashier'])) {
             if ($order->status === \App\Enums\OrderStatus::PENDING) {
                 $order->status = \App\Enums\OrderStatus::SETTLEMENT;
             } elseif ($order->status === \App\Enums\OrderStatus::COOKED) {
                 $order->status = \App\Enums\OrderStatus::SERVED;
             }
-        } else {
+        } elseif ($user->hasRole('chef')) {
             if ($order->status === \App\Enums\OrderStatus::SETTLEMENT) {
                 $order->status = \App\Enums\OrderStatus::COOKED;
             }

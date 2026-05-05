@@ -33,7 +33,7 @@ class UserStoreRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($userId),
             ],
             'password' => $userId ? 'nullable|string|min:8' : 'required|string|min:8',
-            'role_id' => 'required|exists:roles,id',
+            'role' => 'required|string|exists:roles,name',
         ];
     }
 }

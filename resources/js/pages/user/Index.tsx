@@ -1,6 +1,7 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import React from 'react';
 import { DataTable } from '@/components/ui/data-table';
+import { usePermission } from '@/hooks/usePermission';
 import type { User, Role } from '@/types';
 import { columns } from './columns';
 import FormUser from './components/FormUser';
@@ -11,8 +12,8 @@ interface IndexProps {
 }
 
 export default function Index({ users, roles }: IndexProps) {
-    const { auth } = usePage<any>().props;
-    const isSuperAdmin = auth.user.role.role_name === 'superadmin';
+    const { hasRole } = usePermission();
+    const isSuperAdmin = hasRole('super_admin');
 
     return (
         <>

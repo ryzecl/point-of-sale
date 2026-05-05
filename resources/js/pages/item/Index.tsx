@@ -1,5 +1,6 @@
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { AlertTriangle, Package, PackageCheck, PackageX } from 'lucide-react';
+import { usePermission } from '@/hooks/usePermission';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
@@ -50,8 +51,8 @@ export default function Index({
     stats,
     filters = {},
 }: IndexProps) {
-    const { auth } = usePage<any>().props;
-    const isSuperAdmin = auth.user.role.role_name === 'superadmin';
+    const { hasRole } = usePermission();
+    const isSuperAdmin = hasRole('super_admin');
     const itemColumns = columns(categories.data, isSuperAdmin);
 
     // Gunakan custom hook
@@ -161,7 +162,7 @@ export default function Index({
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-green-600 dark:text-green-400">
                                 Active Menu
-                            </CardTitle>
+                             </CardTitle>
                             <PackageCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
                         </CardHeader>
                         <CardContent>

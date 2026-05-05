@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import {
     BookOpen,
     ClipboardPen,
@@ -24,6 +24,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { usePermission } from '@/hooks/usePermission';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
@@ -32,49 +33,49 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
-        roles: ['superadmin', 'admin', 'cashier', 'chef', 'internship'],
+        permissions: ['dashboard.view'],
     },
     {
         title: 'Cashier',
         href: '/cashier',
         icon: ShoppingCart,
-        roles: ['superadmin', 'admin', 'cashier'],
+        permissions: ['pos.access'],
     },
     {
         title: 'Order',
         href: '/orders',
         icon: ClipboardPen,
-        roles: ['superadmin', 'admin', 'cashier', 'chef'],
+        permissions: ['order.access'],
     },
     {
         title: 'Menu',
         href: '/items',
         icon: NotepadText,
-        roles: ['superadmin', 'admin', 'cashier', 'chef'],
+        permissions: ['item.access'],
     },
     {
         title: 'Category',
         href: '/categories',
         icon: Tags,
-        roles: ['superadmin', 'admin'],
+        permissions: ['category.access'],
     },
     {
         title: 'Role',
         href: '/roles',
         icon: ShieldUser,
-        roles: ['superadmin', 'admin'],
+        permissions: ['role.access'],
     },
     {
         title: 'User',
         href: '/users',
         icon: Users,
-        roles: ['superadmin', 'admin'],
+        permissions: ['user.view'],
     },
     {
         title: 'Sales Report',
         href: '/reports/sales',
         icon: ChartLine,
-        roles: ['superadmin', 'admin', 'cashier'],
+        permissions: ['report.view'],
     },
 ];
 
@@ -92,15 +93,17 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
-    const { auth } = usePage<any>().props;
-    const userRole = auth.user.role.role_name;
+    const { hasRole, hasAnyPermission } = usePermission();
 
     const filteredNavItems = mainNavItems.filter((item) => {
-        if (!item.roles) {
+        if (!item.roles && !item.permissions) {
             return true;
         }
 
-        return item.roles.includes(userRole);
+        const roleMatch = item.roles ? item.roles.some((role) => hasRole(role)) : false;
+        const permissionMatch = item.permissions ? hasAnyPermission(item.permissions) : false;
+
+        return roleMatch || permissionMatch;
     });
 
     return (
