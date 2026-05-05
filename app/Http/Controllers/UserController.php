@@ -26,14 +26,23 @@ class UserController extends Controller
         $perPage = $request->integer('perPage', 25);
         $query = User::with('roles');
 
+        $rolesQuery = Role::query();
+        if (!$request->user()->hasRole('super_admin')) {
+            $rolesQuery->where('name', '!=', 'super_admin');
+        }
+
         return Inertia::render('user/Index', [
             'users' => UserResource::collection($query->paginate($perPage)),
-            'roles' => RoleResource::collection(Role::all())
+            'roles' => RoleResource::collection($rolesQuery->get())
         ]);
     }
 
     public function store(UserStoreRequest $request)
     {
+        if ($request->input('role') === 'super_admin' && !$request->user()->hasRole('super_admin')) {
+            abort(403, 'Only Super Admin can assign the Super Admin role.');
+        }
+
         $this->userService->createUser($request->validated());
 
         return back()->with('success', 'User created successfully.');
@@ -48,13 +57,24 @@ class UserController extends Controller
 
     public function update(UserStoreRequest $request, User $user)
     {
+        if ($user->hasRole('super_admin') && !$request->user()->hasRole('super_admin')) {
+            abort(403, 'Cannot modify a Super Admin user.');
+        }
+        if ($request->input('role') === 'super_admin' && !$request->user()->hasRole('super_admin')) {
+            abort(403, 'Only Super Admin can assign the Super Admin role.');
+        }
+
         $this->userService->updateUser($user, $request->validated());
 
         return back()->with('success', 'User updated successfully.');
     }
 
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
+        if ($user->hasRole('super_admin') && !$request->user()->hasRole('super_admin')) {
+            abort(403, 'Cannot delete a Super Admin user.');
+        }
+
         $this->userService->deleteUser($user);
 
         return back()->with('success', 'User deleted successfully.');

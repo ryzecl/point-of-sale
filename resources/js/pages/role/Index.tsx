@@ -11,18 +11,20 @@ interface IndexProps {
 }
 
 export default function Index({ roles, all_permissions }: IndexProps) {
-    const { hasRole } = usePermission();
-    const isSuperAdmin = hasRole('super_admin');
+    const { hasPermission } = usePermission();
+    const canCreate = hasPermission('role.create');
+    const canUpdate = hasPermission('role.update');
+    const canDelete = hasPermission('role.delete');
 
     return (
         <>
             <Head title="Role Management" />
             <div className="container mx-auto">
                 <DataTable
-                    columns={columns(isSuperAdmin, all_permissions)}
+                    columns={columns(canUpdate, canDelete, all_permissions)}
                     data={roles.data}
                     searchPlaceholder="Search roles..."
-                    toolbar={<FormRole all_permissions={all_permissions} />}
+                    toolbar={canCreate ? <FormRole all_permissions={all_permissions} /> : undefined}
                 />
             </div>
         </>

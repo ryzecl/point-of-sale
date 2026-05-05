@@ -17,7 +17,10 @@ import { Button } from '@/components/ui/button';
 import type { Category } from '@/types';
 import FormCategory from './components/FormCategory';
 
-export const columns = (isSuperAdmin: boolean): ColumnDef<Category>[] => [
+export const columns = (
+    canUpdate: boolean,
+    canDelete: boolean,
+): ColumnDef<Category>[] => [
     {
         id: 'No',
         header: 'No',
@@ -51,8 +54,8 @@ export const columns = (isSuperAdmin: boolean): ColumnDef<Category>[] => [
 
             return (
                 <div className="flex items-center justify-center gap-1">
-                    <FormCategory category={category} />
-                    {isSuperAdmin && (
+                    {canUpdate && <FormCategory category={category} />}
+                    {canDelete && (
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <Button

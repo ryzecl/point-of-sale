@@ -21,7 +21,8 @@ import FormItem from './components/FormItem';
 
 export const columns = (
     categories: Category[],
-    isSuperAdmin: boolean,
+    canUpdate: boolean,
+    canDelete: boolean,
 ): ColumnDef<Item>[] => [
     {
         id: 'No',
@@ -168,8 +169,8 @@ export const columns = (
                     >
                         <Eye className="h-4 w-4" />
                     </Button>
-                    <FormItem item={item} categories={categories} />
-                    {isSuperAdmin && (
+                    {canUpdate && <FormItem item={item} categories={categories} />}
+                    {canDelete && (
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <Button

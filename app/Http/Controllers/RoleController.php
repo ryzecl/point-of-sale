@@ -27,6 +27,10 @@ class RoleController extends Controller
     {
         $perPage = $request->integer('perPage', 25);
         $query = Role::with('permissions');
+        
+        if (!$request->user()->hasRole('super_admin')) {
+            $query->where('name', '!=', 'super_admin');
+        }
 
         return Inertia::render('role/Index', [
             'roles' => RoleResource::collection($query->paginate($perPage)),
@@ -47,6 +51,11 @@ class RoleController extends Controller
 
     public function update(RoleStoreRequest $request, $role_id)
     {
+        $role = Role::findOrFail($role_id);
+        if ($role->name === 'super_admin') {
+            abort(403, 'Super Admin role cannot be modified.');
+        }
+
         $role = $this->roleService->updateRole($role_id, $request->all());
 
         if ($request->has('permissions')) {
@@ -58,6 +67,11 @@ class RoleController extends Controller
 
     public function destroy($role_id)
     {
+        $role = Role::findOrFail($role_id);
+        if ($role->name === 'super_admin') {
+            abort(403, 'Super Admin role cannot be deleted.');
+        }
+
         $this->roleService->deleteRole($role_id);
 
         return back()->with('success', 'Role deleted successfully');

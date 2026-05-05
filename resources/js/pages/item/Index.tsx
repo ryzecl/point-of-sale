@@ -51,9 +51,11 @@ export default function Index({
     stats,
     filters = {},
 }: IndexProps) {
-    const { hasRole } = usePermission();
-    const isSuperAdmin = hasRole('super_admin');
-    const itemColumns = columns(categories.data, isSuperAdmin);
+    const { hasPermission } = usePermission();
+    const canCreate = hasPermission('item.create');
+    const canUpdate = hasPermission('item.update');
+    const canDelete = hasPermission('item.delete');
+    const itemColumns = columns(categories.data, canUpdate, canDelete);
 
     // Gunakan custom hook
     const { search, setSearch, handleReset, applyFilters } = useFilter({
@@ -243,7 +245,7 @@ export default function Index({
                                 onFilter={applyFilters}
                                 onReset={handleReset}
                             />
-                            <FormItem categories={categories.data} />
+                            {canCreate && <FormItem categories={categories.data} />}
                         </>
                     }
                 />

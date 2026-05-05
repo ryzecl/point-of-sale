@@ -51,19 +51,19 @@ const mainNavItems: NavItem[] = [
         title: 'Menu',
         href: '/items',
         icon: NotepadText,
-        permissions: ['item.access'],
+        permissions: ['item.view'],
     },
     {
         title: 'Category',
         href: '/categories',
         icon: Tags,
-        permissions: ['category.access'],
+        permissions: ['category.view'],
     },
     {
         title: 'Role',
         href: '/roles',
         icon: ShieldUser,
-        permissions: ['role.access'],
+        permissions: ['role.view'],
     },
     {
         title: 'User',

@@ -19,7 +19,8 @@ import FormUser from './components/FormUser';
 
 export const columns = (
     roles: Role[],
-    isSuperAdmin: boolean,
+    canUpdate: boolean,
+    canDelete: boolean,
 ): ColumnDef<User>[] => [
     {
         id: 'No',
@@ -66,8 +67,8 @@ export const columns = (
                     >
                         <Eye className="h-4 w-4" />
                     </Button>
-                    <FormUser user={user} roles={roles} />
-                    {isSuperAdmin && (
+                    {canUpdate && <FormUser user={user} roles={roles} />}
+                    {canDelete && (
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <Button

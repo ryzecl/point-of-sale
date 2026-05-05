@@ -19,13 +19,22 @@ enum PermissionName: string
     case ORDER_ACCESS = 'order.access';
 
     // Menu/Item Module
-    case ITEM_ACCESS = 'item.access';
+    case ITEM_VIEW = 'item.view';
+    case ITEM_CREATE = 'item.create';
+    case ITEM_UPDATE = 'item.update';
+    case ITEM_DELETE = 'item.delete';
 
     // Category Module
-    case CATEGORY_ACCESS = 'category.access';
+    case CATEGORY_VIEW = 'category.view';
+    case CATEGORY_CREATE = 'category.create';
+    case CATEGORY_UPDATE = 'category.update';
+    case CATEGORY_DELETE = 'category.delete';
 
     // Role Module
-    case ROLE_ACCESS = 'role.access';
+    case ROLE_VIEW = 'role.view';
+    case ROLE_CREATE = 'role.create';
+    case ROLE_UPDATE = 'role.update';
+    case ROLE_DELETE = 'role.delete';
     
     // Report Module
     case REPORT_VIEW = 'report.view';

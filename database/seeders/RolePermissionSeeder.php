@@ -33,6 +33,15 @@ class RolePermissionSeeder extends Seeder
             PermissionName::USER_VIEW->value,
             PermissionName::USER_CREATE->value,
             PermissionName::USER_UPDATE->value,
+            PermissionName::ROLE_VIEW->value,
+            PermissionName::ROLE_CREATE->value,
+            PermissionName::ROLE_UPDATE->value,
+            PermissionName::CATEGORY_VIEW->value,
+            PermissionName::CATEGORY_CREATE->value,
+            PermissionName::CATEGORY_UPDATE->value,
+            PermissionName::ITEM_VIEW->value,
+            PermissionName::ITEM_CREATE->value,
+            PermissionName::ITEM_UPDATE->value,
             PermissionName::REPORT_VIEW->value,
         ]);
 

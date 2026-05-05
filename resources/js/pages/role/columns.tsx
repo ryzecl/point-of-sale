@@ -18,7 +18,8 @@ import type { Role } from '@/types';
 import FormRole from './components/FormRole';
 
 export const columns = (
-    isSuperAdmin: boolean,
+    canUpdate: boolean,
+    canDelete: boolean,
     all_permissions: string[],
 ): ColumnDef<Role>[] => [
     {
@@ -63,8 +64,8 @@ export const columns = (
 
             return (
                 <div className="flex items-center justify-center gap-1">
-                    <FormRole role={role} all_permissions={all_permissions} />
-                    {isSuperAdmin && (
+                    {canUpdate && <FormRole role={role} all_permissions={all_permissions} />}
+                    {canDelete && (
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <Button

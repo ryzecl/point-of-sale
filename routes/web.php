@@ -20,18 +20,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard/chart-data', [DashboardController::class, 'chartData'])->name('dashboard.chartData')->middleware('permission:dashboard.view');
 
 
-    Route::prefix('roles')->middleware('permission:role.access')->controller(RoleController::class)->group(function () {
-        Route::get('/', 'index');
-        Route::post('/', 'store');
-        Route::put('/{role_id}', 'update');
-        Route::delete('/{role_id}', 'destroy');
+    Route::prefix('roles')->controller(RoleController::class)->group(function () {
+        Route::get('/', 'index')->middleware('permission:role.view');
+        Route::post('/', 'store')->middleware('permission:role.create');
+        Route::put('/{role_id}', 'update')->middleware('permission:role.update');
+        Route::delete('/{role_id}', 'destroy')->middleware('permission:role.delete');
     });
 
-    Route::prefix('categories')->middleware('permission:category.access')->controller(CategoryController::class)->group(function () {
-        Route::get('/', 'index')->name('categories.index');
-        Route::post('/', 'store')->name('categories.store');
-        Route::put('/{category_id}', 'update')->name('categories.update');
-        Route::delete('/{category_id}', 'destroy')->name('categories.destroy');
+    Route::prefix('categories')->controller(CategoryController::class)->group(function () {
+        Route::get('/', 'index')->name('categories.index')->middleware('permission:category.view');
+        Route::post('/', 'store')->name('categories.store')->middleware('permission:category.create');
+        Route::put('/{category_id}', 'update')->name('categories.update')->middleware('permission:category.update');
+        Route::delete('/{category_id}', 'destroy')->name('categories.destroy')->middleware('permission:category.delete');
     });
 
     Route::prefix('users')->middleware('permission:user.view')->controller(UserController::class)->group(function () {
@@ -42,12 +42,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{user}', 'destroy')->name('users.destroy')->middleware('permission:user.delete');
     });
 
-    Route::prefix('items')->middleware('permission:item.access')->controller(ItemController::class)->group(function () {
-        Route::get('/', 'index')->name('items.index');
-        Route::post('/', 'store')->name('items.store');
-        Route::get('/{item}', 'show')->name('items.show');
-        Route::put('/{item}', 'update')->name('items.update');
-        Route::delete('/{item}', 'destroy')->name('items.destroy');
+    Route::prefix('items')->controller(ItemController::class)->group(function () {
+        Route::get('/', 'index')->name('items.index')->middleware('permission:item.view');
+        Route::post('/', 'store')->name('items.store')->middleware('permission:item.create');
+        Route::get('/{item}', 'show')->name('items.show')->middleware('permission:item.view');
+        Route::put('/{item}', 'update')->name('items.update')->middleware('permission:item.update');
+        Route::delete('/{item}', 'destroy')->name('items.destroy')->middleware('permission:item.delete');
     });
 
     Route::prefix('cashier')->middleware('permission:pos.access')->controller(OfflineOrderController::class)->group(function () {
