@@ -18,15 +18,14 @@ class CategoryController extends Controller
         $this->categoryService = $categoryService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $perPage = request()->query('perPage', 25);
+        $perPage = $request->integer('perPage', 25);
+
         $query = Category::query();
 
-        $categories = CategoryResource::collection($query->paginate($perPage));
-
         return Inertia::render('category/Index', [
-            'categories' => $categories
+            'categories' => CategoryResource::collection($query->paginate($perPage))
         ]);
     }
 

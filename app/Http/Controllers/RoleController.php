@@ -18,15 +18,13 @@ class RoleController extends Controller
         $this->roleService = $roleService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $perPage = request()->query('perPage', 25);
+        $perPage = $request->integer('perPage', 25);
         $query = Role::query();
 
-        $roles = RoleResource::collection($query->paginate($perPage));
-        
         return Inertia::render('role/Index', [
-            'roles' => $roles
+            'roles' => RoleResource::collection($query->paginate($perPage))
         ]);
     }
 

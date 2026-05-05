@@ -21,7 +21,7 @@ class OrderController extends Controller
 
     public function index(Request $request)
     {
-        $perPage = $request->query('perPage', 25);
+        $perPage = $request->integer('perPage', 25);
         $query = Order::with(['user', 'orderItems.item']);
 
         // Search by Order Code
@@ -37,10 +37,8 @@ class OrderController extends Controller
             'cancel' => (clone $query)->whereIn('status', ['expire', 'cancel'])->count(),
         ];
 
-        $orders = OrderResource::collection($query->latestDeterministic()->paginate((int) $perPage)->withQueryString());
-
         return Inertia::render('order/Index', [
-            'orders' => $orders,
+            'orders' => OrderResource::collection($query->latestDeterministic()->paginate((int) $perPage)->withQueryString()),
             'stats' => $stats,
             'filters' => $request->only(['search', 'status', 'perPage', 'date', 'date_from', 'date_to', 'payment_method']),
         ]);
@@ -56,7 +54,7 @@ class OrderController extends Controller
     public function updateStatus(Order $order)
     {
         $this->orderService->updateStatus($order, Auth::user());
-        
+
         return back()->with('success', 'Order status updated successfully');
     }
 

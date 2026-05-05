@@ -20,17 +20,14 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $perPage = request()->query('perPage', 25);
+        $perPage = $request->integer('perPage', 25);
         $query = User::with('role');
 
-        $users = UserResource::collection($query->paginate($perPage));
-        $roles = RoleResource::collection(Role::all());
-
         return Inertia::render('user/Index', [
-            'users' => $users,
-            'roles' => $roles
+            'users' => UserResource::collection($query->paginate($perPage)),
+            'roles' => RoleResource::collection(Role::all())
         ]);
     }
 

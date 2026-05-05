@@ -37,14 +37,9 @@ class OfflineOrderController extends Controller
         $defaultPerPage = $isMobile ? 10 : 25;
         $perPage = $request->input('perPage', $defaultPerPage);
 
-        $items = ItemResource::collection(
-            $query->paginate((int) $perPage)->withQueryString()
-        );
-        $categories = CategoryResource::collection(Category::all());
-
         return Inertia::render('cashier/Index', [
-            'items' => $items,
-            'categories' => $categories,
+            'items' => ItemResource::collection($query->paginate((int) $perPage)->withQueryString()),
+            'categories' => CategoryResource::collection(Category::all()),
             'filters' => $request->only(['search', 'category_id', 'min_price', 'max_price']),
             'midtransClientKey' => config('midtrans.client_key'),
             'midtransSnapUrl'   => config('midtrans.snap_url'),

@@ -23,12 +23,14 @@ class ItemController extends Controller
 
     public function index(Request $request)
     {
-        $perPage = $request->query('perPage', 25);
+        $filters = $request->only(['search', 'category_id', 'min_price', 'max_price', 'stock_status', 'is_active', 'is_low_stock', 'perPage']);
+
+        $perPage = $request->integer('perPage', 25);
+
         $query = Item::with('category');
 
-        // Use service
         $query = $this->itemService->applyFilters($query, $request->all());
-        
+
         $stats = [
             'totalItemStats' => Item::count(),
             'total' => (clone $query)->count(),
@@ -37,28 +39,25 @@ class ItemController extends Controller
             'low_stock' => (clone $query)->whereColumn('stock', '<=', 'min_stock')->count(),
         ];
 
-        $items = ItemResource::collection($query->paginate($request->perPage ?? $perPage)->withQueryString());
-        $categories = CategoryResource::collection(Category::all());
-
         return Inertia::render('item/Index', [
-            'items' => $items,
-            'categories' => $categories,
+            'items' => ItemResource::collection($query->paginate($perPage)->withQueryString()),
+            'categories' => CategoryResource::collection(Category::all()),
             'stats' => $stats,
-            'filters' => $request->only(['search', 'category_id', 'min_price', 'max_price', 'stock_status', 'is_active', 'is_low_stock', 'perPage'])
+            'filters' => $filters,
         ]);
     }
 
     public function store(ItemStoreRequest $request)
     {
         $this->itemService->createItem($request->validated(), $request->file('img'));
-        
+
         return back()->with('success', 'Item created!');
     }
 
     public function update(ItemStoreRequest $request, Item $item)
     {
         $this->itemService->updateItem($item, $request->validated(), $request->file('img'));
-        
+
         return back()->with('success', 'Item updated successfully!');
     }
 
